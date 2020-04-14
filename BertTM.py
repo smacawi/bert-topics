@@ -1,6 +1,7 @@
 from transformers import AdamW, BertConfig, BertTokenizer, BertModel, BertPreTrainedModel
 
 import numpy as np
+import pandas as pd
 import torch
 import torch.nn as nn
 
@@ -119,3 +120,85 @@ def get_attention(texts, model, tokenizer, method = 'last'):
         attn = list(attn.detach().numpy())
         sentence_attentions.append(merge_wordpiece_tokens(list(zip(token_list[idx], attn))))
     return(sentence_attentions)
+
+def print_topics_modelling(
+    topics, feature_names, sorting, n_words = 20, return_df = True
+):
+    if return_df:
+        try:
+            import pandas as pd
+        except:
+            raise Exception(
+                'pandas not installed. Please install it and try again or set `return_df = False`'
+            )
+    df = {}
+    for i in range(topics):
+        words = []
+        for k in range(n_words):
+            words.append(feature_names[sorting[i, k]])
+        df['topic %d' % (i)] = words
+    if return_df:
+        return pd.DataFrame.from_dict(df)
+    else:
+        return df
+    
+def generate_ngram(seq, ngram = (1, 3)):
+    g = []
+    for i in range(ngram[0], ngram[-1] + 1):
+        g.extend(list(ngrams_generator(seq, i)))
+    return g
+
+def _pad_sequence(
+    sequence,
+    n,
+    pad_left = False,
+    pad_right = False,
+    left_pad_symbol = None,
+    right_pad_symbol = None,
+):
+    sequence = iter(sequence)
+    if pad_left:
+        sequence = itertools.chain((left_pad_symbol,) * (n - 1), sequence)
+    if pad_right:
+        sequence = itertools.chain(sequence, (right_pad_symbol,) * (n - 1))
+    return sequence
+
+
+def ngrams_generator(
+    sequence,
+    n,
+    pad_left = False,
+    pad_right = False,
+    left_pad_symbol = None,
+    right_pad_symbol = None,
+):
+    """
+    generate ngrams.
+
+    Parameters
+    ----------
+    sequence : list of str
+        list of tokenize words.
+    n : int
+        ngram size
+
+    Returns
+    -------
+    ngram: list
+    """
+    sequence = _pad_sequence(
+        sequence, n, pad_left, pad_right, left_pad_symbol, right_pad_symbol
+    )
+
+    history = []
+    while n > 1:
+        try:
+            next_item = next(sequence)
+        except StopIteration:
+            return
+        history.append(next_item)
+        n -= 1
+    for item in sequence:
+        history.append(item)
+        yield tuple(history)
+        del history[0]
