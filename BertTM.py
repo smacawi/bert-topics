@@ -121,26 +121,12 @@ def get_attention(texts, model, tokenizer, method = 'last'):
         sentence_attentions.append(merge_wordpiece_tokens(list(zip(token_list[idx], attn))))
     return(sentence_attentions)
 
-def print_topics_modelling(
-    topics, feature_names, sorting, n_words = 20, return_df = True
-):
-    if return_df:
-        try:
-            import pandas as pd
-        except:
-            raise Exception(
-                'pandas not installed. Please install it and try again or set `return_df = False`'
-            )
+def topics_df(topics, components, n_words = 20):
     df = {}
     for i in range(topics):
-        words = []
-        for k in range(n_words):
-            words.append(feature_names[sorting[i, k]])
+        words = sorted(components[i], key=components[i].get, reverse=True)[:n_words]
         df['topic %d' % (i)] = words
-    if return_df:
-        return pd.DataFrame.from_dict(df)
-    else:
-        return df
+    return pd.DataFrame.from_dict(df)
     
 def generate_ngram(seq, ngram = (1, 3)):
     g = []
