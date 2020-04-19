@@ -1,3 +1,5 @@
+from nltk.corpus import stopwords
+from nltk.tokenize import RegexpTokenizer
 from transformers import AdamW, BertConfig, BertTokenizer, BertModel, BertPreTrainedModel
 
 import numpy as np
@@ -45,9 +47,7 @@ def tokenize_for_tm(texts, tokenizer):
 def merge_wordpiece_tokens(paired_tokens, weighted = True):
     new_paired_tokens = []
     n_tokens = len(paired_tokens)
-
     i = 0
-
     while i < n_tokens:
         current_token, current_weight = paired_tokens[i]
         if current_token.startswith('##'):
@@ -188,3 +188,40 @@ def ngrams_generator(
         history.append(item)
         yield tuple(history)
         del history[0]
+
+def preprocess(df,
+               tweet_col='text',
+               to_lower = True):
+    
+    df_copy = df.copy()
+
+    # drop rows with empty values
+    df_copy.dropna(how='all', inplace=True)
+    # drop rows with identical text
+    df_copy.drop_duplicates(subset = 'text', inplace = True)
+
+    # lower the tweets
+    if to_lower:
+        df_copy['preprocessed_' + tweet_col] = df_copy[tweet_col].str.lower()
+    else:
+        df_copy['preprocessed_' + tweet_col] = df_copy[tweet_col].str
+
+    # filter out stop words and URLs
+    stopwords = ['&amp;', 'rt','th', 'co', 're', 've', 'kim', 'daca','#nlwhiteout', 
+                 '#nlweather', 'newfoundland', '#nlblizzard2020', '#nlstm2020', '#snowmaggedon2020', 
+                 '#stmageddon2020', '#stormageddon2020','#snowpocalypse2020', '#snowmageddon', '#nlstm', 
+                 '#nlwx', '#nlblizzard', 'nlwhiteout', 'nlweather', 'newfoundland', 'nlblizzard2020', 'nlstm2020',
+                 'snowmaggedon2020', 'stmageddon2020', 'stormageddon2020','snowpocalypse2020', 'snowmageddon', 
+                 'nlstm', 'nlwx', 'nlblizzard', '#', '@', '…', "'", "’", "[UNK]", "\"", ";", "*", "_", "amp", "&"]
+    url_re = '(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})'
+    # to remove mentions add ?:\@| at the beginning
+    df_copy['preprocessed_' + tweet_col] = df_copy['preprocessed_' + tweet_col].apply(lambda row: ' '.join(
+        [re.sub(r"\b@\w+", "", word) for word in row.split() if (not word in stopwords) and (not re.match(url_re, word))]))
+    # tokenize the tweets
+    tokenizer = RegexpTokenizer('[a-zA-Z]\w+\'?\w*')
+    df_copy['tokenized_' + tweet_col] = df_copy['preprocessed_' + tweet_col].apply(lambda row: ' '.join(tokenizer.tokenize(row)))
+
+    #remove tweets with length less than two
+    df_copy = df_copy[df_copy['tokenized_' + tweet_col].map(len) >= 2]
+
+    return(df_copy.reset_index())
