@@ -1,5 +1,6 @@
 from nltk.corpus import stopwords
 from nltk.tokenize import RegexpTokenizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 from transformers import AdamW, BertConfig, BertTokenizer, BertModel, BertPreTrainedModel
 
 import numpy as np
@@ -225,3 +226,23 @@ def preprocess(df,
     df_copy = df_copy[df_copy['tokenized_' + tweet_col].map(len) >= 2]
 
     return(df_copy.reset_index())
+
+# From http://www.davidsbatista.net/blog/2018/02/28/TfidfVectorizer/
+def dummy_fun(doc):
+    return doc
+
+def tf_icf(words_label):
+    tfidf_vectorizer = TfidfVectorizer(
+        analyzer='word',
+        tokenizer=dummy_fun,
+        preprocessor=dummy_fun,
+        token_pattern=None) 
+
+    tf_idf_corpus = [[item for item in words_label[key]] for key in range(0,10)]
+    transformed = tfidf_vectorizer.fit_transform(tf_idf_corpus)
+    
+    index_value={i[1]:i[0] for i in tfidf_vectorizer.vocabulary_.items()}
+    fully_indexed = []
+    for row in transformed:
+        fully_indexed.append({index_value[column]:value for (column,value) in zip(row.indices,row.data)})
+    return(fully_indexed)
