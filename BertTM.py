@@ -1,36 +1,20 @@
+from BertForSequenceClassificationOutputPooled import *
+from gensim.models.phrases import Phrases, Phraser
 from nltk.corpus import stopwords
 from nltk.tokenize import RegexpTokenizer
+from sentence_transformers import SentenceTransformer
+from sentence_transformers import models, losses
+from sklearn.cluster import KMeans
 from sklearn.feature_extraction.text import TfidfVectorizer
+from textblob import TextBlob, Word
 from transformers import AdamW, BertConfig, BertTokenizer, BertModel, BertPreTrainedModel
 
+import json
 import numpy as np
 import pandas as pd
+import time
 import torch
 import torch.nn as nn
-
-# Redundant function but saving for now
-def bert_tokenization(tokenizer, texts,cls = '[CLS]', sep = '[SEP]'):
-
-    input_ids, input_masks, segment_ids, s_tokens = [], [], [], []
-    for text in texts:
-        inputs = tokenizer.encode_plus(text, add_special_tokens=True)
-        tokens = tokenizer.tokenize(text)
-        tokens = [cls] + tokens + [sep]
-        token_type_ids = inputs['token_type_ids']
-        input_id = torch.tensor(inputs['input_ids']).unsqueeze(0)
-        attention_mask = inputs['attention_mask']
-
-        input_ids.append(input_id)
-        input_masks.append(attention_mask)
-        segment_ids.append(token_type_ids)
-        s_tokens.append(tokens)
-
-    maxlen = max([len(i) for i in input_ids])
-    #input_ids = padding_sequence(input_ids, maxlen)
-    #input_masks = padding_sequence(input_masks, maxlen)
-    #segment_ids = padding_sequence(segment_ids, maxlen)
-
-    return input_ids, input_masks, segment_ids, s_tokens
 
 def tokenize_for_tm(texts, tokenizer):
     input_list = []
@@ -190,55 +174,94 @@ def ngrams_generator(
         yield tuple(history)
         del history[0]
 
-def preprocess(df,
-               tweet_col='text',
-               to_lower = True):
+def get_embeddings(data, model, tokenizer, pooled = False):
+    rows, attentions = [], []
+    start_time = time.time()
+    for i in range(0, len(data)):
+        if pooled:
+            rows.append(vectorize(data[i:index], model, tokenizer))
+        else:
+            rows.extend(st_model.encode([data[i]]))
+        attentions.extend(get_attention([data[i]], model, tokenizer))
+        if i % 500 == 0:
+            print(f'Processed {(i)} rows in {round(time.time() - start_time, 2)} seconds.')
+    return rows, attentions
+
+def get_label_counts(labels):
+    unique, counts = np.unique(labels, return_counts=True)
+    print("The number of texts per label are:")
+    print(dict(zip(unique, counts)))
     
-    df_copy = df.copy()
+def get_clusters(rows, n_clusters):
+    print("Fitting kmeans model.")
+    kmeans = KMeans(n_clusters = n_clusters, random_state = 0).fit(rows)
+    labels = kmeans.labels_
+    get_label_counts(labels)
+    return labels
 
-    # drop rows with empty values
-    df_copy.dropna(how='all', inplace=True)
-    # drop rows with identical text
-    df_copy.drop_duplicates(subset = 'text', inplace = True)
+def get_stopwords(extended_stopwords, filename = 'stopwords-en.json'):
+    with open(filename) as fopen:
+        stopwords = json.load(fopen)
 
-    # lower the tweets
-    if to_lower:
-        df_copy['preprocessed_' + tweet_col] = df_copy[tweet_col].str.lower()
-    else:
-        df_copy['preprocessed_' + tweet_col] = df_copy[tweet_col].str
+    stopwords.extend(extended_stopwords)
+    return(stopwords)
 
-    # filter out stop words and URLs
-    stopwords = ['&amp;', 'rt','th', 'co', 're', 've', 'kim', 'daca','#nlwhiteout', 
-                 '#nlweather', 'newfoundland', '#nlblizzard2020', '#nlstm2020', '#snowmaggedon2020', 
-                 '#stmageddon2020', '#stormageddon2020','#snowpocalypse2020', '#snowmageddon', '#nlstm', 
-                 '#nlwx', '#nlblizzard', 'nlwhiteout', 'nlweather', 'newfoundland', 'nlblizzard2020', 'nlstm2020',
-                 'snowmaggedon2020', 'stmageddon2020', 'stormageddon2020','snowpocalypse2020', 'snowmageddon', 
-                 'nlstm', 'nlwx', 'nlblizzard', '#', '@', '…', "'", "’", "[UNK]", "\"", ";", "*", "_", "amp", "&"]
+def filter_data(attentions, stopwords, labels):
+    filtered_a, filtered_t, filtered_l = [], [], []
     url_re = '(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})'
-    # to remove mentions add ?:\@| at the beginning
-    df_copy['preprocessed_' + tweet_col] = df_copy['preprocessed_' + tweet_col].apply(lambda row: ' '.join(
-        [re.sub(r"\b@\w+", "", word) for word in row.split() if (not word in stopwords) and (not re.match(url_re, word))]))
-    # tokenize the tweets
-    tokenizer = RegexpTokenizer('[a-zA-Z]\w+\'?\w*')
-    df_copy['tokenized_' + tweet_col] = df_copy['preprocessed_' + tweet_col].apply(lambda row: ' '.join(tokenizer.tokenize(row)))
+    print("Filtering attentions.")
+    for idx, a in enumerate(attentions):
+        f = [(Word(i[0]).lemmatize(),i[1]) for i in a if i[0] not in stopwords and i[0] not in url_re]
+        f_txt = [w[0] for w in f]
+        if len(f) > 0:
+            #overall.extend(f)
+            filtered_a.append(f)
+            filtered_t.append(f_txt)
+            filtered_l.append(labels[idx])
+    return filtered_a, filtered_t, filtered_l
 
-    #remove tweets with length less than two
-    df_copy = df_copy[df_copy['tokenized_' + tweet_col].map(len) >= 2]
+def determine_cluster_components(filtered_l, filtered_a, ngram):
+    print("""
+Determining cluster components. This will take awhile. 
+Progress will be printed for every 500th processed property.
+    """)
 
-    return(df_copy.reset_index())
+    components = {}
+    words_label = {}
+    start_time = time.time()
+    for idx, label in enumerate(filtered_l):
+        if label not in components:
+            components[label] = {}
+            words_label[label] = []
+        else:
+            f = generate_ngram(filtered_a[idx], ngram)
+            for w in f:
+                word = ' '.join([r[0] for r in w])
+                score = np.mean([r[1] for r in w])
+                if word in features[idx]:
+                    if word in components[label]:
+                        components[label][word] += score
+                    else:
+                        components[label][word] = score
+                    words_label[label].append(word)
+        if (idx + 1) % 5000 == 0:
+            print(f'Processed {(idx + 1)} texts in {round(time.time() - start_time, 2)} seconds.')
+
+    print(f"Finished determining a total of {idx + 1} cluster components. Total time {round(time.time() - start_time, 2)} seconds.")
+    return(components, words_label)
 
 # From http://www.davidsbatista.net/blog/2018/02/28/TfidfVectorizer/
 def dummy_fun(doc):
     return doc
 
-def tf_icf(words_label):
+def tf_icf(words_label, n_topics):
     tfidf_vectorizer = TfidfVectorizer(
         analyzer='word',
         tokenizer=dummy_fun,
         preprocessor=dummy_fun,
         token_pattern=None) 
 
-    tf_idf_corpus = [[item for item in words_label[key]] for key in range(0,10)]
+    tf_idf_corpus = [[item for item in words_label[key]] for key in range(n_topics)]
     transformed = tfidf_vectorizer.fit_transform(tf_idf_corpus)
     
     index_value={i[1]:i[0] for i in tfidf_vectorizer.vocabulary_.items()}
@@ -246,3 +269,37 @@ def tf_icf(words_label):
     for row in transformed:
         fully_indexed.append({index_value[column]:value for (column,value) in zip(row.indices,row.data)})
     return(fully_indexed)
+
+def get_tfidf_components(components, tfidf_indexed):
+    components_tfidf_attn = {}
+    components_tfidf = {}
+    for k1 in components:
+        components_tfidf_attn[k1] = {}
+        components_tfidf[k1] = {}
+        for k2 in components[k1]:
+            components_tfidf_attn[k1][k2] = tfidf_indexed[k1][k2] * components[k1][k2]
+            components_tfidf[k1][k2] = tfidf_indexed[k1][k2]
+    return(components_tfidf, components_tfidf_attn)
+
+def get_phrases(filtered_t, min_count=100, threshold=0.5):
+    bigram = Phrases(filtered_t, min_count=min_count, threshold = threshold) # higher threshold fewer phrases.
+    trigram = Phrases(bigram[filtered_t])  
+
+    # 'Phraser' is a wrapper that makes 'Phrases' run faster
+    bigram_phraser = Phraser(bigram)
+    trigram_phraser = Phraser(trigram)
+
+    phrased = [t for t in trigram[[b for b in bigram[filtered_t]]]]
+    features = [[w.replace('_', ' ') for w in sublist] for sublist in phrased]
+    #features = [w.replace('_', ' ') for sublist in phrased for w in sublist]
+    return(features)
+
+def get_stopwords(filename = 'stopwords-en.json'):
+    with open(filename) as fopen:
+        stopwords = json.load(fopen)
+
+    stopwords.extend(['#', '@', '…', "'", "’", "[UNK]", "\"", ";", "*", "_", "amp", "&", "“", "”",
+                      'nlwhiteout', 'nlweather', 'newfoundland', 'nlblizzard2020', 'nlstorm2020',
+                      'snowmaggedon2020', 'stormageddon2020', 'snowpocalypse2020', 'snowmageddon',
+                      'nlstorm', 'nltraffic', 'nlwx', 'nlblizzard'])
+    return(stopwords)
