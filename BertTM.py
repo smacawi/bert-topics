@@ -220,7 +220,7 @@ def filter_data(attentions, stopwords, labels):
             filtered_l.append(labels[idx])
     return filtered_a, filtered_t, filtered_l
 
-def determine_cluster_components(filtered_l, filtered_a, ngram):
+def determine_cluster_components(filtered_l, filtered_a, ngram, features):
     print("""
 Determining cluster components. This will take awhile. 
 Progress will be printed for every 500th processed property.
