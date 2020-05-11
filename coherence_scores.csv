@@ -1,0 +1,13 @@
+embeddings,model,components,topics,ngrams_per_topic,ct,coherence,hashtags
+sent_embedder,kmeans,tfidf,10,10,c_npmi,-0.08111011870354952,no
+sent_embedder,kmeans,tfidf_attn,10,10,c_npmi,-0.13039636170819893,no
+sent_embedder,kmeans,attn,10,10,c_npmi,-0.13981248898935522,no
+sent_embedder,kmeans,tfidf,10,10,c_uci,-2.336097333876069,no
+sent_embedder,kmeans,tfidf_attn,10,10,c_uci,-2.947140718729171,no
+sent_embedder,kmeans,attn,10,10,c_uci,-3.6830052437658325,no
+sent_embedder,kmeans,attn,10,10,c_v,0.2408136840161609,no
+sent_embedder,kmeans,tfidf,10,10,c_v,0.2398978856350044,no
+sent_embedder,kmeans,tfidf_attn,10,10,c_v,0.22457014824296628,no
+sent_embedder,kmeans,tfidf,10,10,u_mass,-5.632523501137272,no
+sent_embedder,kmeans,tfidf_attn,10,10,u_mass,-6.38614717833582,no
+sent_embedder,kmeans,attn,10,10,u_mass,-7.364369017019047,no
