@@ -197,24 +197,19 @@ def get_embeddings(data, model, tokenizer, pooled = False):
             print(f'Processed {(i)} rows in {round(time.time() - start_time, 2)} seconds.')
     return rows, attentions
 
+# Get count for number of documents per topic cluster.
 def get_label_counts(labels):
     unique, counts = np.unique(labels, return_counts=True)
     print("The number of texts per label are:")
     print(dict(zip(unique, counts)))
     
+# Get topic clusters using kmeans from sklearn.
 def get_clusters(rows, n_clusters):
     print("Fitting kmeans model.")
     kmeans = KMeans(n_clusters = n_clusters, random_state = 0).fit(rows)
     labels = kmeans.labels_
     get_label_counts(labels)
     return labels, kmeans
-
-def get_stopwords(extended_stopwords, filename = 'stopwords-en.json'):
-    with open(filename) as fopen:
-        stopwords = json.load(fopen)
-
-    stopwords.extend(extended_stopwords)
-    return(stopwords)
 
 def filter_data(attentions, stopwords, labels):
     filtered_a, filtered_t, filtered_l = [], [], []
@@ -260,6 +255,7 @@ Progress will be printed for every 500th processed property.
     print(f"Finished determining a total of {idx + 1} cluster components. Total time {round(time.time() - start_time, 2)} seconds.")
     return(components, words_label)
 
+# Dummy function for creating tf-idf vectorizer in sklearn.
 # From http://www.davidsbatista.net/blog/2018/02/28/TfidfVectorizer/
 def dummy_fun(doc):
     return doc
@@ -290,6 +286,7 @@ def get_tfidf_components(components, tfidf_indexed):
             components_tfidf_attn[k1][k2] = tfidf_indexed[k1][k2] * components[k1][k2]
             components_tfidf[k1][k2] = tfidf_indexed[k1][k2]
     return(components_tfidf, components_tfidf_attn)
+
 
 def get_phrases(filtered_t, min_count=100, threshold=0.5):
     bigram = Phrases(filtered_t, min_count=min_count, threshold = threshold) # higher threshold fewer phrases.
