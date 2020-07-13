@@ -39,7 +39,7 @@ def get_coherence(features, topics, coherence_type = 'c_v'):
     
     return coherence
 
-# Gather coherence scores from several coherence  dataframe.
+# Gather several coherence scores from different metrics into one dataframe.
 def output_coherence(features_path, topics_dir, embed_name, coherence_type, topic_model = "kmeans"):
     topic_paths = []
     features = pickle.load(open(features_path, 'rb'))
