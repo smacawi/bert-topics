@@ -106,6 +106,7 @@ def get_attention(texts, model, tokenizer, method = 'last'):
         sentence_attentions.append(merge_wordpiece_tokens(list(zip(token_list[idx], attn))))
     return(sentence_attentions)
 
+# Create dataframe from topic 
 def topics_df(topics, components, n_words = 20):
     df = {}
     for i in range(topics):
@@ -177,13 +178,22 @@ def ngrams_generator(
 def get_embeddings(data, model, tokenizer, pooled = False):
     rows, attentions = [], []
     start_time = time.time()
+    if not pooled:
+        output_dir = "../bert-classifier-pytorch/model_save_attention_1epoch"
+        word_embedding_model = models.BERT(output_dir, max_seq_length = 240,)
+        # Apply mean pooling to get one fixed sized sentence vector
+        pooling_model = models.Pooling(word_embedding_model.get_word_embedding_dimension(),
+                                       pooling_mode_mean_tokens=True,
+                                       pooling_mode_cls_token=False,
+                                       pooling_mode_max_tokens=False)
+        st_model = SentenceTransformer(modules=[word_embedding_model, pooling_model])
     for i in range(0, len(data)):
         if pooled:
-            rows.append(vectorize(data[i:index], model, tokenizer))
+            rows.append(vectorize([data[i]], model, tokenizer))
         else:
             rows.extend(st_model.encode([data[i]]))
         attentions.extend(get_attention([data[i]], model, tokenizer))
-        if i % 500 == 0:
+        if i % 50 == 0:
             print(f'Processed {(i)} rows in {round(time.time() - start_time, 2)} seconds.')
     return rows, attentions
 
@@ -197,7 +207,7 @@ def get_clusters(rows, n_clusters):
     kmeans = KMeans(n_clusters = n_clusters, random_state = 0).fit(rows)
     labels = kmeans.labels_
     get_label_counts(labels)
-    return labels
+    return labels, kmeans
 
 def get_stopwords(extended_stopwords, filename = 'stopwords-en.json'):
     with open(filename) as fopen:
@@ -294,12 +304,11 @@ def get_phrases(filtered_t, min_count=100, threshold=0.5):
     #features = [w.replace('_', ' ') for sublist in phrased for w in sublist]
     return(features)
 
-def get_stopwords(filename = 'stopwords-en.json'):
+# Import stopwords and hashtags to drop when deternmining topic cluster components.
+# These stopwords will _not_ be dropped from the actual BERT models when determining topic clusters.
+def get_stopwords(hashtags = [], filename = 'stopwords-en.json'):
     with open(filename) as fopen:
         stopwords = json.load(fopen)
 
-    stopwords.extend(['#', '@', '…', "'", "’", "[UNK]", "\"", ";", "*", "_", "amp", "&", "“", "”",
-                      'nlwhiteout', 'nlweather', 'newfoundland', 'nlblizzard2020', 'nlstorm2020',
-                      'snowmaggedon2020', 'stormageddon2020', 'snowpocalypse2020', 'snowmageddon',
-                      'nlstorm', 'nltraffic', 'nlwx', 'nlblizzard'])
+    stopwords.extend(['#', '@', '…', "'", "’", "[UNK]", "\"", ";", "*", "_", "amp", "&", "“", "”"] + hashtags)
     return(stopwords)
