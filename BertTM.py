@@ -16,6 +16,9 @@ import time
 import torch
 import torch.nn as nn
 
+# Tokenize texts for vectorization and extracting attention weights.
+# Uses Huggingface tokenizers: 
+# https://huggingface.co/transformers/main_classes/tokenizer.html
 def tokenize_for_tm(texts, tokenizer):
     input_list = []
     token_list = []
@@ -29,6 +32,9 @@ def tokenize_for_tm(texts, tokenizer):
         token_list.append(tokens)
     return(input_list, token_list)
 
+# Merge word piece tokens in order to get complete words for topic cluster components.
+# Implemented from block 14 of commit 9895ee0 at:
+# https://github.com/huseinzol05/NLP-Models-Tensorflow/blob/master/topic-model/2.bert-topic.ipynb
 def merge_wordpiece_tokens(paired_tokens, weighted = True):
     new_paired_tokens = []
     n_tokens = len(paired_tokens)
@@ -66,6 +72,8 @@ def merge_wordpiece_tokens(paired_tokens, weighted = True):
         weights = weights / np.sum(weights)
     return list(zip(words, weights))
 
+# Vectorize input documents using pooling_input similar to "pooler_output" in:
+# https://huggingface.co/transformers/model_doc/bert.html
 def vectorize(texts, model, tokenizer):
     input_list, _ = tokenize_for_tm(texts, tokenizer)
     vectorized_sentences = []
@@ -77,6 +85,9 @@ def vectorize(texts, model, tokenizer):
         vectorized_sentences.append(outputs[3][0]) 
     return(vectorized_sentences)
 
+# Get attention weights from model. 
+# Currently implemented first layer and last layer. Last is current standard in academica.
+# Further implementation could include mean layer.
 def get_attention(texts, model, tokenizer, method = 'last'):
     """
     ATTENTION SHAPE GUIDE:
@@ -106,7 +117,9 @@ def get_attention(texts, model, tokenizer, method = 'last'):
         sentence_attentions.append(merge_wordpiece_tokens(list(zip(token_list[idx], attn))))
     return(sentence_attentions)
 
-# Create dataframe from topic 
+# Create dataframe from topics  
+# Modified from code in block 28 of commit 9895ee0 at:
+# https://github.com/huseinzol05/NLP-Models-Tensorflow/blob/master/topic-model/2.bert-topic.ipynb
 def topics_df(topics, components, n_words = 20):
     df = {}
     for i in range(topics):
@@ -114,12 +127,19 @@ def topics_df(topics, components, n_words = 20):
         df['topic %d' % (i)] = words
     return pd.DataFrame.from_dict(df)
     
+# Loop through attention and token pairs to generate ngrams for topic cluster components.
+# Implemented from block 14 of commit 9895ee0 at:
+# https://github.com/huseinzol05/NLP-Models-Tensorflow/blob/master/topic-model/2.bert-topic.ipynb
 def generate_ngram(seq, ngram = (1, 3)):
     g = []
     for i in range(ngram[0], ngram[-1] + 1):
         g.extend(list(ngrams_generator(seq, i)))
     return g
 
+
+# Pad sequence helper funtion for ngram generator.
+# Implemented from block 14 of commit 9895ee0 at:
+# https://github.com/huseinzol05/NLP-Models-Tensorflow/blob/master/topic-model/2.bert-topic.ipynb
 def _pad_sequence(
     sequence,
     n,
@@ -135,7 +155,9 @@ def _pad_sequence(
         sequence = itertools.chain(sequence, (right_pad_symbol,) * (n - 1))
     return sequence
 
-
+# Use attention and token pairs to generate ngrams for topic cluster components.
+# Implemented from block 14 of commit 9895ee0 at:
+# https://github.com/huseinzol05/NLP-Models-Tensorflow/blob/master/topic-model/2.bert-topic.ipynb
 def ngrams_generator(
     sequence,
     n,
@@ -175,6 +197,10 @@ def ngrams_generator(
         yield tuple(history)
         del history[0]
 
+# Produce document attentions and embeddings.
+# Embeddings returned using one of two methods:
+# 1) BERT pooled embedding layers per the pooler_output here: https://huggingface.co/transformers/model_doc/bert.html
+# 2) Sentence transformers as outlined here: https://github.com/UKPLab/sentence-transformers
 def get_embeddings(data, model, tokenizer, pooled = False):
     rows, attentions = [], []
     start_time = time.time()
@@ -211,6 +237,7 @@ def get_clusters(rows, n_clusters):
     get_label_counts(labels)
     return labels, kmeans
 
+# Filter attentions and wordpiece tokens for stopwords
 def filter_data(attentions, stopwords, labels):
     filtered_a, filtered_t, filtered_l = [], [], []
     url_re = '(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})'
@@ -219,18 +246,19 @@ def filter_data(attentions, stopwords, labels):
         f = [(Word(i[0]).lemmatize(),i[1]) for i in a if i[0] not in stopwords and i[0] not in url_re]
         f_txt = [w[0] for w in f]
         if len(f) > 0:
-            #overall.extend(f)
             filtered_a.append(f)
             filtered_t.append(f_txt)
             filtered_l.append(labels[idx])
     return filtered_a, filtered_t, filtered_l
 
+# Determine the words and ngrams beloning to each topic cluster.
+# Major modification on code in block 27 of commit 9895ee0  at:
+# https://github.com/huseinzol05/NLP-Models-Tensorflow/blob/master/topic-model/2.bert-topic.ipynb
 def determine_cluster_components(filtered_l, filtered_a, ngram, features):
     print("""
 Determining cluster components. This will take awhile. 
 Progress will be printed for every 500th processed property.
     """)
-
     components = {}
     words_label = {}
     start_time = time.time()
@@ -260,6 +288,7 @@ Progress will be printed for every 500th processed property.
 def dummy_fun(doc):
     return doc
 
+# Create tf-idf weights for topic clusters using Sklearn.
 def tf_icf(words_label, n_topics):
     tfidf_vectorizer = TfidfVectorizer(
         analyzer='word',
@@ -276,6 +305,7 @@ def tf_icf(words_label, n_topics):
         fully_indexed.append({index_value[column]:value for (column,value) in zip(row.indices,row.data)})
     return(fully_indexed)
 
+# Get topic cluster component weights using attention, tf-idf and a mixture of both.
 def get_tfidf_components(components, tfidf_indexed):
     components_tfidf_attn = {}
     components_tfidf = {}
@@ -287,7 +317,8 @@ def get_tfidf_components(components, tfidf_indexed):
             components_tfidf[k1][k2] = tfidf_indexed[k1][k2]
     return(components_tfidf, components_tfidf_attn)
 
-
+# Generate phrases for topic cluster components using Gensim Phrases() and Phraser() functions:
+# https://radimrehurek.com/gensim/models/phrases.html
 def get_phrases(filtered_t, min_count=100, threshold=0.5):
     bigram = Phrases(filtered_t, min_count=min_count, threshold = threshold) # higher threshold fewer phrases.
     trigram = Phrases(bigram[filtered_t])  
@@ -298,7 +329,6 @@ def get_phrases(filtered_t, min_count=100, threshold=0.5):
 
     phrased = [t for t in trigram[[b for b in bigram[filtered_t]]]]
     features = [[w.replace('_', ' ') for w in sublist] for sublist in phrased]
-    #features = [w.replace('_', ' ') for sublist in phrased for w in sublist]
     return(features)
 
 # Import stopwords and hashtags to drop when deternmining topic cluster components.
@@ -307,5 +337,6 @@ def get_stopwords(hashtags = [], filename = 'stopwords-en.json'):
     with open(filename) as fopen:
         stopwords = json.load(fopen)
 
-    stopwords.extend(['#', '@', '…', "'", "’", "[UNK]", "\"", ";", "*", "_", "amp", "&", "“", "”"] + hashtags)
+    stopwords.extend(['#', '@', '…', "'", "’", "[UNK]", "\"", ";", 
+                      "*", "_", "amp", "&", "“", "”"] + hashtags)
     return(stopwords)
