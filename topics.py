@@ -8,7 +8,7 @@ from BertTM import *
 
 def main():
     ngram = (1, 3)
-    n_topics = 9
+    n_topics = range(3,10)
 
     hashtags = ['nlwhiteout', 'nlweather', 'newfoundland', 'nlblizzard2020', 'nlstorm2020',
      'snowmaggedon2020', 'stormageddon2020', 'snowpocalypse2020', 'snowmageddon',
@@ -29,39 +29,46 @@ def main():
             all_model_data = pickle.load(open(f'{embedding_paths}/{emb_file}', 'rb'))
             texts, _, attentions, rows = zip(*all_model_data)
             
-            # Run and save kmeans model
-            labels, kmeans = get_clusters(rows, n_topics)
-            emb_folder = emb_file.split('.')[0]
-            directory = f'{topic_paths}/{emb_folder}{hashtags_ext}'
-            if not os.path.exists(directory):
-                try:
-                    os.makedirs(directory)
-                    os.makedirs(f'{directory}/topics')
-                except OSError as exc: # Guard against race condition
-                    if exc.errno != errno.EEXIST:
-                        raise
-            pickle.dump(kmeans, open(f'{directory}/kmeans.pkl', 'wb'))
-            pickle.dump(labels, open(f'{directory}/labels.pkl', 'wb'))
-             
-            filtered_a, filtered_t, filtered_l = filter_data(attentions, stopwords, labels)
-            features = get_phrases(filtered_t, min_count=10, threshold=0.5)
-            pickle.dump(features, open(f'{directory}/features.pkl', 'wb'))
-            
-            components, words_label = determine_cluster_components(filtered_l, filtered_a, ngram, features)
-            tfidf_indexed = tf_icf(words_label, n_topics)
-            components_tfidf, components_tfidf_attn = get_tfidf_components(components, tfidf_indexed)
-            
-            topics_attn = topics_df(topics = n_topics, components = components, n_words = 10)
-            pickle.dump(topics_attn, open(f'{directory}/topics/topics_attn.pkl', "wb"))
-            topics_attn.to_csv(f'{directory}/topics/topics_attn.csv', index=False)
-            
-            topics_tfidf = topics_df( topics = n_topics, components = components_tfidf, n_words = 10)
-            pickle.dump(topics_tfidf, open(f'{directory}/topics/topics_tfidf.pkl', "wb"))
-            topics_tfidf.to_csv(f'{directory}/topics/topics_tfidf.csv', index=False)
-            
-            topics_tfidf_attn = topics_df(topics = n_topics, components = components_tfidf_attn, n_words = 10)
-            pickle.dump(topics_tfidf_attn, open(f'{directory}/topics/topics_tfidf_attn.pkl', "wb"))
-            topics_tfidf_attn.to_csv(f'{directory}/topics/topics_tfidf_attn.csv', index=False)
+            for t in n_topics:
+                # Run and save kmeans model
+                print(f"Running kmeans model for {emb_file} with {t} topics.")
+                labels, kmeans = get_clusters(rows, t)
+                emb_folder = emb_file.split('.')[0]
+                directory = f'{topic_paths}/{emb_folder}{hashtags_ext}'
+                if not os.path.exists(f'{directory}/{t}'):
+                    try:
+                        #os.makedirs(directory)
+                        os.makedirs(f'{directory}/{t}')
+                        os.makedirs(f'{directory}/{t}/topics')
+                    except OSError as exc: # Guard against race condition
+                        if exc.errno != errno.EEXIST:
+                            raise
+                print(f"Saving kmeans model and labels for {emb_file} with {t} topics.")
+                pickle.dump(kmeans, open(f'{directory}/{t}/kmeans.pkl', 'wb'))
+                pickle.dump(labels, open(f'{directory}/{t}/labels.pkl', 'wb'))
+                
+                print(f"Getting featuers for kmeans model for {emb_file} with {t} topics.")
+                filtered_a, filtered_t, filtered_l = filter_data(attentions, stopwords, labels)
+                features = get_phrases(filtered_t, min_count=10, threshold=0.5)
+                pickle.dump(features, open(f'{directory}/{t}/features.pkl', 'wb'))
+                
+                print(f"Getting components for kmeans model for {emb_file} with {t} topics.")
+                components, words_label = determine_cluster_components(filtered_l, filtered_a, ngram, features)
+                tfidf_indexed = tf_icf(words_label, t)
+                components_tfidf, components_tfidf_attn = get_tfidf_components(components, tfidf_indexed)
+
+                print(f"Determining topics for kmeans model for {emb_file} with {t} topics.")
+                topics_attn = topics_df(topics = t, components = components, n_words = 10)
+                pickle.dump(topics_attn, open(f'{directory}/{t}/topics/topics_attn.pkl', "wb"))
+                topics_attn.to_csv(f'{directory}/{t}/topics/topics_attn.csv', index=False)
+
+                topics_tfidf = topics_df(topics = t, components = components_tfidf, n_words = 10)
+                pickle.dump(topics_tfidf, open(f'{directory}/{t}/topics/topics_tfidf.pkl', "wb"))
+                topics_tfidf.to_csv(f'{directory}/{t}/topics/topics_tfidf.csv', index=False)
+
+                topics_tfidf_attn = topics_df(topics = t, components = components_tfidf_attn, n_words = 10)
+                pickle.dump(topics_tfidf_attn, open(f'{directory}/{t}/topics/topics_tfidf_attn.pkl', "wb"))
+                topics_tfidf_attn.to_csv(f'{directory}/{t}/topics/topics_tfidf_attn.csv', index=False)
 
 def get_stopwords(hashtags = [], filename = 'stopwords-en.json'):
     with open(filename) as fopen:
