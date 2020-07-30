@@ -7,14 +7,18 @@ import pickle
 
 def main():
     base_path = "topic_models/"
+    topics = range(3,10)
     c_dfs = []
-    for _, dirs, _ in os.walk(base_path):
-        dirs = (d for d in dirs if (not d[0] == '.') and (not d[0].startswith('t')))
-        for d in dirs:
-            c_dfs.append(output_coherence(f"{base_path}{d}/features.pkl",
-                                  f"{base_path}{d}/topics",
-                                  embed_name = d,
-                                  coherence_type = ['c_v', 'c_uci', 'c_npmi', 'u_mass']))
+    _, dirs, _ = next(os.walk(base_path))
+    dirs = (d for d in dirs if (not d[0] == '.') and (not d[0].startswith('t')))
+    for d in dirs:
+        print(d)
+        for t in topics:
+            c_dfs.append(output_coherence(f"{base_path}{d}/{t}/features.pkl",
+                                              f"{base_path}{d}/{t}/topics",
+                                              embed_name = d,
+                                              coherence_type = ['c_v', 'c_uci', 'c_npmi', 'u_mass'],
+                                              n_topics = t))
     output = pd.concat(c_dfs).groupby('ct', group_keys = False).apply(
         pd.DataFrame.sort_values, 'coherence', ascending=False).reset_index(drop = 'True')
     output.to_csv("coherence_scores_v3.csv", index=False)
@@ -40,7 +44,9 @@ def get_coherence(features, topics, coherence_type = 'c_v'):
     return coherence
 
 # Gather several coherence scores from different metrics into one dataframe.
-def output_coherence(features_path, topics_dir, embed_name, coherence_type, topic_model = "kmeans"):
+def output_coherence(features_path, topics_dir, embed_name, coherence_type, n_topics, topic_model = "kmeans"):
+    print(features_path)
+    print(topics_dir)
     topic_paths = []
     features = pickle.load(open(features_path, 'rb'))
     df = {'embeddings': [], 'model': [], 'components':[], 'topics': [], 
@@ -53,16 +59,18 @@ def output_coherence(features_path, topics_dir, embed_name, coherence_type, topi
         embedding = embed_name.split('hashtag')[0]
     
     for file in os.listdir(topics_dir):
-        topic_paths.append((f"{topics_dir}/{file}", file))
+        if file.endswith(".pkl"):
+            topic_paths.append((f"{topics_dir}/{file}", file))
 
     for path in topic_paths:
+        print(path)
         topics = pickle.load(open(path[0], 'rb'))
         for ct in coherence_type:
             coherence = get_coherence(features, topics, coherence_type = ct)
             df['embeddings'].append(embedding)
             df['model'].append(topic_model)
             df['components'].append(path[1].split('.')[0])
-            df['topics'].append(10)
+            df['topics'].append(n_topics)
             df['ngrams_per_topic'].append(10)
             df['ct'].append(ct)
             df['coherence'].append(coherence)
