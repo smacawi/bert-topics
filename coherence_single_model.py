@@ -7,6 +7,21 @@ import pandas as pd
 import pickle
 
 def main():
+    """
+    A function to output all the coherence scores in the Gensim library
+
+    Attributes
+    ----------
+    topics : list
+        a list of lists where each sublist is a list of topics
+    features : list
+        a list of lists where each list is the features in the input documents
+
+    Output
+    -------
+    print statement with coherence values
+    """
+    
     topics = [["progression", "visibility"], ["city", "window"], ["continue", "snow"]]
     features = [['ohsttkoorj'], 
                 ['progression', 'storm', 'qdosgepicb'], 
