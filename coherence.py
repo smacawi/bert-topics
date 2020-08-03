@@ -12,7 +12,6 @@ def main():
     _, dirs, _ = next(os.walk(base_path))
     dirs = (d for d in dirs if (not d[0] == '.') and (not d[0].startswith('t')))
     for d in dirs:
-        print(d)
         for t in topics:
             c_dfs.append(output_coherence(f"{base_path}{d}/{t}/features.pkl",
                                               f"{base_path}{d}/{t}/topics",
@@ -21,7 +20,7 @@ def main():
                                               n_topics = t))
     output = pd.concat(c_dfs).groupby('ct', group_keys = False).apply(
         pd.DataFrame.sort_values, 'coherence', ascending=False).reset_index(drop = 'True')
-    output.to_csv("coherence_scores_v3.csv", index=False)
+    output.to_csv("coherence_scores.csv", index=False)
 
 # Use Gensim's CoherenceModel() to return model coherence:
 # https://radimrehurek.com/gensim/models/coherencemodel.html
@@ -45,8 +44,6 @@ def get_coherence(features, topics, coherence_type = 'c_v'):
 
 # Gather several coherence scores from different metrics into one dataframe.
 def output_coherence(features_path, topics_dir, embed_name, coherence_type, n_topics, topic_model = "kmeans"):
-    print(features_path)
-    print(topics_dir)
     topic_paths = []
     features = pickle.load(open(features_path, 'rb'))
     df = {'embeddings': [], 'model': [], 'components':[], 'topics': [], 
@@ -63,7 +60,6 @@ def output_coherence(features_path, topics_dir, embed_name, coherence_type, n_to
             topic_paths.append((f"{topics_dir}/{file}", file))
 
     for path in topic_paths:
-        print(path)
         topics = pickle.load(open(path[0], 'rb'))
         for ct in coherence_type:
             coherence = get_coherence(features, topics, coherence_type = ct)
