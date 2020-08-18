@@ -82,7 +82,7 @@ def vectorize(texts, model, tokenizer):
         outputs = model(input_ids)
         # No labels given, so loss not in output and index is 3. 
         # With labels given, index is 4.
-        vectorized_sentences.append(outputs[3][0]) 
+        vectorized_sentences.append(outputs[3][0].detach().numpy())
     return(vectorized_sentences)
 
 # Get attention weights from model. 
@@ -215,7 +215,7 @@ def get_embeddings(data, model, tokenizer, pooled = False):
         st_model = SentenceTransformer(modules=[word_embedding_model, pooling_model])
     for i in range(0, len(data)):
         if pooled:
-            rows.append(vectorize([data[i]], model, tokenizer))
+            rows.extend(vectorize([data[i]], model, tokenizer))
         else:
             rows.extend(st_model.encode([data[i]]))
         attentions.extend(get_attention([data[i]], model, tokenizer))
@@ -245,6 +245,7 @@ def filter_data(attentions, stopwords, labels):
     for idx, a in enumerate(attentions):
         f = [(Word(i[0]).lemmatize(),i[1]) for i in a if i[0] not in stopwords and i[0] not in url_re]
         f_txt = [w[0] for w in f]
+        f_txt = re.sub(r'\d+', '', f_txt)
         if len(f) > 0:
             filtered_a.append(f)
             filtered_t.append(f_txt)
