@@ -6,8 +6,9 @@ import pandas as pd
 import pickle
 
 def main():
-    base_path = "topic_models/"
-    topics = range(3,10)
+    model_type = "nlwx"
+    base_path = f"topic_models/{model_type}/"
+    topics = [5,9,10,15,20]
     c_dfs = []
     _, dirs, _ = next(os.walk(base_path))
     dirs = (d for d in dirs if (not d[0] == '.') and (not d[0].startswith('t')))
@@ -20,7 +21,7 @@ def main():
                                               n_topics = t))
     output = pd.concat(c_dfs).groupby('ct', group_keys = False).apply(
         pd.DataFrame.sort_values, 'coherence', ascending=False).reset_index(drop = 'True')
-    output.to_csv("coherence_scores.csv", index=False)
+    output.to_csv(f"coherence_scores_{model_type}.csv", index=False)
 
 # Use Gensim's CoherenceModel() to return model coherence:
 # https://radimrehurek.com/gensim/models/coherencemodel.html
