@@ -6,20 +6,21 @@ import pandas as pd
 import pickle
 import seaborn as sns
 
-BASE_URL = "topic_models/supervised_sent_embeddings_hashtags/9/"
+BASE_URL = "topic_models/CrisisNLP/cls_emb_att-crisisnlp_test-l2_all_events_balanced_hashtags/9/"
 LABELS_PATH = f"{BASE_URL}labels.pkl"
-PREDS_PATH = f"{BASE_URL}preds.pkl"
+PREDS_PATH = f"supervised_test_labels.pkl"
+#PREDS_PATH = f"{BASE_URL}preds.pkl"
 
 superv = pickle.load(open(PREDS_PATH, 'rb'))
 usuperv = pickle.load(open(LABELS_PATH, 'rb'))
 usuperv = list(map(str, usuperv)) 
 
 cm = confusion_matrix(superv, usuperv, normalize='all')
-
 cluster = pd.Series(usuperv)
 pred = pd.Series(superv)
 
-ct = pd.crosstab(pred, cluster, rownames=['Prediction'], colnames=['Cluster'], margins=False).apply(lambda r: round(r, 0))
+ct = pd.crosstab(pred, cluster, rownames=['Prediction'], 
+                 colnames=['Cluster'], margins=False).apply(lambda r: round(r, 0))
 ct_norm_cluster = pd.crosstab(pred, cluster, rownames=['Prediction'], 
                               colnames=['Cluster'], margins=False, 
                               normalize = 'columns').apply(lambda r: round(r, 2))
