@@ -12,6 +12,7 @@ from transformers import AdamW, BertConfig, BertTokenizer, BertModel, BertPreTra
 import json
 import numpy as np
 import pandas as pd
+import re
 import time
 import torch
 import torch.nn as nn
@@ -125,6 +126,8 @@ def topics_df(topics, components, n_words = 20):
     for i in range(topics):
         words = sorted(components[i], key=components[i].get, reverse=True)[:n_words]
         df['topic %d' % (i)] = words
+        if len(words) < n_words:
+            df['topic %d' % (i)].extend([''] * (n_words - len(words)))
     return pd.DataFrame.from_dict(df)
     
 # Loop through attention and token pairs to generate ngrams for topic cluster components.
@@ -243,9 +246,8 @@ def filter_data(attentions, stopwords, labels):
     url_re = '(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})'
     print("Filtering attentions.")
     for idx, a in enumerate(attentions):
-        f = [(Word(i[0]).lemmatize(),i[1]) for i in a if i[0] not in stopwords and i[0] not in url_re]
-        f_txt = [w[0] for w in f]
-        f_txt = re.sub(r'\d+', '', f_txt)
+        f = [(Word(i[0].lower()).lemmatize(),i[1]) for i in a if i[0].lower() not in stopwords and i[0].lower() not in url_re]
+        f_txt = [re.sub(r"[^a-zA-Z]+", '', w[0]) for w in f]
         if len(f) > 0:
             filtered_a.append(f)
             filtered_t.append(f_txt)
@@ -295,11 +297,10 @@ def tf_icf(words_label, n_topics):
         analyzer='word',
         tokenizer=dummy_fun,
         preprocessor=dummy_fun,
-        token_pattern=None) 
-
+        token_pattern=None)
+    
     tf_idf_corpus = [[item for item in words_label[key]] for key in range(n_topics)]
     transformed = tfidf_vectorizer.fit_transform(tf_idf_corpus)
-    
     index_value={i[1]:i[0] for i in tfidf_vectorizer.vocabulary_.items()}
     fully_indexed = []
     for row in transformed:
