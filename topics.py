@@ -8,7 +8,8 @@ from BertTM import *
 
 def main():
     ngram = (1, 3)
-    n_topics = range(3,10)
+    n_topics = [20]
+    model_type = "nlwx"
 
     hashtags = ['nlwhiteout', 'nlweather', 'newfoundland', 'nlblizzard2020', 'nlstorm2020',
      'snowmaggedon2020', 'stormageddon2020', 'snowpocalypse2020', 'snowmageddon',
@@ -20,14 +21,16 @@ def main():
     elif sys.argv[1] == 'no_hashtags':
         stopwords = get_stopwords()
         hashtags_ext = '_no_hashtags'
-    embedding_paths = 'bert_embedders'
-    topic_paths = 'topic_models'
-    for emb_file in os.listdir('bert_embedders'):
-        if emb_file.endswith('.pkl'):
+    embedding_paths = f'bert_embedders/{model_type}'
+    topic_paths = f'topic_models/{model_type}'
+    for emb_file in os.listdir(embedding_paths):
+        if emb_file.endswith('clstr_emb_att-nlwx_ht_no_rt-l2_all_events_balanced.pkl'):
             
             # Load embedding and attention data
             all_model_data = pickle.load(open(f'{embedding_paths}/{emb_file}', 'rb'))
-            texts, _, attentions, rows = zip(*all_model_data)
+            texts, preds, attentions, rows = zip(*all_model_data)
+            if type(preds[0]) is dict:
+                preds = [max(d, key=d.get) for d in preds]
             
             for t in n_topics:
                 # Run and save kmeans model
@@ -46,6 +49,7 @@ def main():
                 print(f"Saving kmeans model and labels for {emb_file} with {t} topics.")
                 pickle.dump(kmeans, open(f'{directory}/{t}/kmeans.pkl', 'wb'))
                 pickle.dump(labels, open(f'{directory}/{t}/labels.pkl', 'wb'))
+                pickle.dump(preds, open(f'{directory}/{t}/preds.pkl', 'wb'))
                 
                 print(f"Getting featuers for kmeans model for {emb_file} with {t} topics.")
                 filtered_a, filtered_t, filtered_l = filter_data(attentions, stopwords, labels)
@@ -54,27 +58,33 @@ def main():
                 
                 print(f"Getting components for kmeans model for {emb_file} with {t} topics.")
                 components, words_label = determine_cluster_components(filtered_l, filtered_a, ngram, features)
+                # Hackey solution when a label has no words
+                for n in range(t):
+                    if n not in words_label.keys():
+                        words_label[n] = [""]
+                        components[n] = {}
+                        components[n][""] = 0
                 tfidf_indexed = tf_icf(words_label, t)
                 components_tfidf, components_tfidf_attn = get_tfidf_components(components, tfidf_indexed)
 
                 print(f"Determining topics for kmeans model for {emb_file} with {t} topics.")
-                topics_attn = topics_df(topics = t, components = components, n_words = 10)
-                pickle.dump(topics_attn, open(f'{directory}/{t}/topics/topics_attn.pkl', "wb"))
-                topics_attn.to_csv(f'{directory}/{t}/topics/topics_attn.csv', index=False)
+                save_topics(emb_file, t, directory, components, "topics_attn")
+                save_topics(emb_file, t, directory, components, "topics_tfidf")
+                save_topics(emb_file, t, directory, components, "topics_tfidf_attn")
 
-                topics_tfidf = topics_df(topics = t, components = components_tfidf, n_words = 10)
-                pickle.dump(topics_tfidf, open(f'{directory}/{t}/topics/topics_tfidf.pkl', "wb"))
-                topics_tfidf.to_csv(f'{directory}/{t}/topics/topics_tfidf.csv', index=False)
+def save_topics(emb_file, t, directory, components, filename, n_words = 10):
+    print(f"Determining topics for kmeans model for {emb_file} with {t} topics.")
+    topics = topics_df(topics = t, components = components, n_words = n_words)
+    pickle.dump(topics, open(f'{directory}/{t}/topics/{filename}.pkl', "wb"))
+    topics.to_csv(f'{directory}/{t}/topics/{filename}.csv', index=False)
 
-                topics_tfidf_attn = topics_df(topics = t, components = components_tfidf_attn, n_words = 10)
-                pickle.dump(topics_tfidf_attn, open(f'{directory}/{t}/topics/topics_tfidf_attn.pkl', "wb"))
-                topics_tfidf_attn.to_csv(f'{directory}/{t}/topics/topics_tfidf_attn.csv', index=False)
-
+                
 def get_stopwords(hashtags = [], filename = 'stopwords-en.json'):
     with open(filename) as fopen:
         stopwords = json.load(fopen)
 
-    stopwords.extend(['#', '@', '…', "'", "’", "[UNK]", "\"", ";", "*", "_", "amp", "&", "“", "”"] + hashtags)
+    stopwords.extend(['#', '@', '…', "'", "’", "[UNK]", "\"", ";", "*", 
+                      "_", "amp", "&", "“", "”", "rt"] + hashtags)
     return(stopwords)
 
 if __name__ == '__main__':
