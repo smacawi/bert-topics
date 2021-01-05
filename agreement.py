@@ -5,14 +5,12 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import pickle
 import seaborn as sns
-
+import sys
 
 def main():
     bert_ft = get_bert_m()
-    #bert_b = get_bert_m(model = "base_sent_embeddings",
-    #                    PATH = "base_sent_embeddings_ngram2_phrasing_stf-True_mdf-1.0_no_hashtags")
-    lda_df = pd.read_csv("lda_labels.csv")
-    btm_df = pd.read_csv("btm_labels.csv")
+    lda_df = pd.read_csv("data/lda_labels.csv", usecols=['text', 'label'])
+    btm_df = pd.read_csv("data/btm_labels.csv", usecols=['text', 'label'])
     
     avg_a = comp_bert_lda(bert_ft, lda_df, "ft", "lda")
     #avg_a = comp_2_models(lda_df,btm_df, "lda", "btm")
@@ -20,6 +18,19 @@ def main():
 
 def get_bert_m(model = "finetuned_sent_embeddings",
                PATH = "finetuned_sent_embeddings_ngram1_no_phrasing_stf-False_mdf-0.4_hashtags"):
+    '''Load bert model and labels from corresponding topic model. Return dataframe with text and label columns.
+    Parameters
+    ----------
+        model : str
+        PATH : str
+    Returns
+    -------
+    bert_df : pandas.DataFrame
+        Index: RangeIndex
+        Columns:
+            Name: text, dtype: object
+            Name: label, dtype: int64
+    '''
     all_model_data = pickle.load(open(f'bert_embedders/nlwx/{model}.pkl', 'rb'))
     texts, _, _, _ = zip(*all_model_data)
     labs = pickle.load(open(f'topic_models/nlwx/{PATH}/9/labels.pkl', 'rb'))
@@ -32,11 +43,54 @@ def get_bert_m(model = "finetuned_sent_embeddings",
     return(bert_df)
 
 def comp_bert_lda(bert_df, lda_df, b_name, l_name):
+    '''Load bert and lda models. Return float value of average model agreement.
+    Parameters
+    ----------
+        bert_df : pandas.DataFrame
+            Index: RangeIndex
+            Columns:
+                Name: text, dtype: object
+                Name: label, dtype: object
+        lda_df : pandas.DataFrame
+            Index: RangeIndex
+            Columns:
+                Name: text, dtype: object
+                Name: label, dtype: int64
+        b_name : str
+        l_name : str
+    Returns
+    -------
+    avg_a : float
+    '''
+    
+    # Only include rows from BERT model included in the LDA output. 
+    # Necessary due to slight differences in preprocessing and tokenization.
     bert_df = bert_df[bert_df.text.isin(lda_df.text)]
+    print(bert_df.info())
     avg_a = comp_2_models(bert_df, lda_df, b_name, l_name)
     return avg_a
 
 def comp_2_models(m1, m2, m1_name, m2_name):
+    '''Compare the agreement between two models. Saves outputs in outputs/agreement.
+    Parameters
+    ----------
+        m1 : pandas.DataFrame
+            Index: RangeIndex
+            Columns:
+                Name: text, dtype: object
+                Name: label, dtype: object
+        m2 : pandas.DataFrame
+            Index: RangeIndex
+            Columns:
+                Name: text, dtype: object
+                Name: label, dtype: int64
+        b_name : str
+        l_name : str
+    Returns
+    -------
+    avg_a : float
+    
+    '''
     m1 = pd.Series(list(map(str, m1.label)))
     m2 = pd.Series(list(map(str, m2.label)))
 
@@ -49,9 +103,9 @@ def comp_2_models(m1, m2, m1_name, m2_name):
                            colnames=[m2_name], margins=False, 
                            normalize = 'columns').apply(lambda r: round(r, 2))
 
-    ct.to_csv(f"{m1_name}_vs_{m2_name}.csv", index=True)
+    #ct.to_csv(f"outputs/agreement/{m1_name}_vs_{m2_name}.csv", index=True)
     ct_p = sns.heatmap(ct, cmap="YlGnBu", annot=True, cbar=False, fmt='d')
-    ct_p.figure.savefig(f"{m1_name}_v_{m2_name}.png",dpi=300, bbox_inches="tight")
+    #ct_p.figure.savefig(f"outputs/agreement/{m1_name}_v_{m2_name}.png",dpi=300, bbox_inches="tight")
     plt.clf()
     
     a1 = get_agreement(ct_norm_m1, m1)
@@ -60,8 +114,19 @@ def comp_2_models(m1, m2, m1_name, m2_name):
     return(avg_a)
 
 def get_agreement(ct_norm, m):
+    '''Check from embedding path whether topics include hashtags.
+    Parameters
+    ----------
+        ct_norm : pandas.DataFrame
+        m : pandas.Series
+    Returns
+    -------
+        agreement : float
+    '''
     max_overlap = ct_norm.max()
     freqs = Counter(m)
+    
+    # Calculate agreement. See paper for details.
     agreement = sum([max_overlap[i]*(freqs[str(i)]/len(m)) for i in max_overlap.index])
     return(agreement)
 
