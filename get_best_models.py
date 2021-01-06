@@ -62,7 +62,7 @@ def main():
 
     output_plot(data = output_full, y = 'Coherence_CV', ylab = 'Coherence ($\mathregular{C_{v}}$)', filename = 'CV_plot.png')
     output_plot(data = output_full, y = 'Coherence_NPMI', ylab = 'Coherence $\mathregular{NPMI}$)', filename = 'NPMI_plot')
-    
+
 def output_plot(data, y, ylab, filename):
     sns.set(style="ticks", font_scale=1.2)
     p = sns.lineplot(data= data, 
@@ -73,12 +73,6 @@ def output_plot(data, y, ylab, filename):
                      style = 'Model, components',
                      palette='rocket',
                      markers=True)
-    #p = sns.lineplot(data= lda_df, 
-    #                 x='topics', 
-    #                 y='Coherence_CV',
-    #                 hue="Model",
-    #                 palette='rocket',
-    #                 markers=True)
     plt.xlabel('Number of topics')
     plt.ylabel(ylab)
     p.set_xticks(range(5,16))
