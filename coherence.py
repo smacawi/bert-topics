@@ -1,5 +1,5 @@
 '''Use the Gensim module CoherenceModel() to calculate coherence for different models.
-The coherence types used are c_v, c_npmi, c_uci and c_umass.
+The coherence types used by default are c_v and c_npmi.
 Outputs a csv file for each coherence type and for each topic number (5, 9, 10, 15).
 
 See Gensim documentation for more details: https://radimrehurek.com/gensim/models/coherencemodel.html
@@ -23,7 +23,7 @@ def main():
     topics = [5,9,10,15]
     _, dirs, _ = next(os.walk(base_path))
     dirs = list(d for d in dirs if (not d[0] == '.') and (not d[0].startswith('t')))
-    ct = ['c_v','c_npmi', 'c_uci', 'c_umass']
+    ct = ['c_v','c_npmi']
     for t in topics:
         for c in ct:
             c_dfs = []
