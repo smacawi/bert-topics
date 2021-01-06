@@ -22,7 +22,6 @@ def main():
     '''Check that correct sys.argvs are given and then compare models.'''
     
     models = sys.argv[1:3]
-    print(models)
     cols = ['text', 'label']
     if set(['bert', 'lda']) == set(models):
         print('Comparing bert and lda.')
@@ -66,7 +65,6 @@ def get_bert_m(model = "finetuned_sent_embeddings",
         {'text': pd.Series(texts, dtype='object'),
          'label': pd.Series(bert_labs, dtype='int')
         })
-    print(bert_df.info())
     bert_df = bert_df.drop_duplicates()
     return(bert_df)
 
@@ -130,9 +128,9 @@ def comp_2_models(m1, m2, m1_name, m2_name):
                            colnames=[m2_name], margins=False, 
                            normalize = 'columns').apply(lambda r: round(r, 2))
 
-    #ct.to_csv(f"outputs/agreement/{m1_name}_vs_{m2_name}.csv", index=True)
+    ct.to_csv(f"outputs/agreement/{m1_name}_vs_{m2_name}.csv", index=True)
     ct_p = sns.heatmap(ct, cmap="YlGnBu", annot=True, cbar=False, fmt='d')
-    #ct_p.figure.savefig(f"outputs/agreement/{m1_name}_v_{m2_name}.png",dpi=300, bbox_inches="tight")
+    ct_p.figure.savefig(f"outputs/agreement/{m1_name}_v_{m2_name}.png",dpi=300, bbox_inches="tight")
     plt.clf()
     
     a1 = get_agreement(ct_norm_m1, m1)
@@ -161,8 +159,6 @@ def get_agreement(ct_norm, m):
     -------
         agreement : float
     '''
-    print(ct_norm)
-    print(ct_norm.info())
     max_overlap = ct_norm.max()
     freqs = Counter(m)
     
