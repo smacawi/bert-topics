@@ -1,3 +1,14 @@
+'''This module takes the names of two models as input and outputs the "agreement" of the two models. 
+Agreement measures the extent to which the label outputs of two (unsupervised) models overlap.
+
+Arguments
+----------
+    [0] : python
+    [1] : agreement.py
+    [2] : "bert", "btm" or "lda"
+    [3] : "bert", "btm" or "lda"
+'''
+
 from collections import Counter
 from sklearn.metrics import confusion_matrix
 
@@ -8,13 +19,29 @@ import seaborn as sns
 import sys
 
 def main():
-    bert_ft = get_bert_m()
-    lda_df = pd.read_csv("data/lda_labels.csv", usecols=['text', 'label'])
-    btm_df = pd.read_csv("data/btm_labels.csv", usecols=['text', 'label'])
+    '''Check that correct sys.argvs are given and then compare models.'''
     
-    avg_a = comp_bert_lda(bert_ft, lda_df, "ft", "lda")
-    #avg_a = comp_2_models(lda_df,btm_df, "lda", "btm")
-    print(avg_a)
+    models = sys.argv[1:3]
+    print(models)
+    cols = ['text', 'label']
+    if set(['bert', 'lda']) == set(models):
+        print('Comparing bert and lda.')
+        bert_ft = get_bert_m()
+        lda_df = pd.read_csv("data/lda_labels.csv", usecols=cols)
+        avg_a = comp_bert_lda(bert_ft, lda_df, "ft", "lda")
+    elif set(['bert', 'btm']) == set(models):
+        print('Comparing bert and btm.')
+        bert_ft = get_bert_m()
+        btm_df = pd.read_csv("data/btm_labels.csv", usecols=cols)
+        avg_a = comp_bert_lda(bert_ft,btm_df, "ft", "btm")
+    elif set(['lda', 'btm']) == set(models):
+        print('Comparing btm and lda.')
+        lda_df = pd.read_csv("data/lda_labels.csv", usecols=cols)
+        btm_df = pd.read_csv("data/btm_labels.csv", usecols=cols)
+        avg_a = comp_2_models(lda_df,btm_df, "lda", "btm")
+    else:
+        print('Passed invalid model names. Use "bert", "lda" or "btm".')
+    print(f'The average agreement between the two models is {avg_a}.')
 
 def get_bert_m(model = "finetuned_sent_embeddings",
                PATH = "finetuned_sent_embeddings_ngram1_no_phrasing_stf-False_mdf-0.4_hashtags"):
@@ -36,9 +63,10 @@ def get_bert_m(model = "finetuned_sent_embeddings",
     labs = pickle.load(open(f'topic_models/nlwx/{PATH}/9/labels.pkl', 'rb'))
     bert_labs = list(map(str, labs)) 
     bert_df = pd.DataFrame(
-        {'text': texts,
-         'label': bert_labs
+        {'text': pd.Series(texts, dtype='object'),
+         'label': pd.Series(bert_labs, dtype='int')
         })
+    print(bert_df.info())
     bert_df = bert_df.drop_duplicates()
     return(bert_df)
 
@@ -50,7 +78,7 @@ def comp_bert_lda(bert_df, lda_df, b_name, l_name):
             Index: RangeIndex
             Columns:
                 Name: text, dtype: object
-                Name: label, dtype: object
+                Name: label, dtype: int64
         lda_df : pandas.DataFrame
             Index: RangeIndex
             Columns:
@@ -66,7 +94,6 @@ def comp_bert_lda(bert_df, lda_df, b_name, l_name):
     # Only include rows from BERT model included in the LDA output. 
     # Necessary due to slight differences in preprocessing and tokenization.
     bert_df = bert_df[bert_df.text.isin(lda_df.text)]
-    print(bert_df.info())
     avg_a = comp_2_models(bert_df, lda_df, b_name, l_name)
     return avg_a
 
@@ -78,7 +105,7 @@ def comp_2_models(m1, m2, m1_name, m2_name):
             Index: RangeIndex
             Columns:
                 Name: text, dtype: object
-                Name: label, dtype: object
+                Name: label, dtype: int64
         m2 : pandas.DataFrame
             Index: RangeIndex
             Columns:
@@ -118,11 +145,24 @@ def get_agreement(ct_norm, m):
     Parameters
     ----------
         ct_norm : pandas.DataFrame
+            Index: RangeIndex
+            Columns:
+                Name: 0, dtype: float64
+                Name: 1, dtype: float64
+                Name: 2, dtype: float64
+                Name: 3, dtype: float64
+                Name: 4, dtype: float64
+                Name: 5, dtype: float64
+                Name: 6, dtype: float64
+                Name: 7, dtype: float64
+                Name: 8, dtype: float64
         m : pandas.Series
     Returns
     -------
         agreement : float
     '''
+    print(ct_norm)
+    print(ct_norm.info())
     max_overlap = ct_norm.max()
     freqs = Counter(m)
     
