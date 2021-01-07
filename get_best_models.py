@@ -1,8 +1,5 @@
-'''Use the Gensim module CoherenceModel() to calculate coherence for different models.
-The coherence types used by default are c_v and c_npmi.
-Outputs a csv file for each coherence type and for each topic number (5, 9, 10, 15).
-
-See Gensim documentation for more details: https://radimrehurek.com/gensim/models/coherencemodel.html
+'''Use coherence scores to select best performing BERT based models.
+Compare BERT models to LDA and BTM models and output plots of comparison. 
 '''
 
 import matplotlib.pyplot as plt
@@ -14,30 +11,55 @@ from matplotlib.colors import ListedColormap
 cmap = ListedColormap(sns.color_palette())
 
 def main():
-    models = ['c_v','c_npmi']
+    '''Load mo'''
+    c_metrics = ['c_v','c_npmi']
     topics = [5,9,10,15]
-    dfs = []
-    for m in models:
-        for t in topics:
-            df = load_model(t = t, model_type = m)
-            max_df = filter_values(df)
-            #save_model(max_df, c_type = m)
-            dfs.append(max_df)
+    dfs = get_dfs(c_metrics, topics)
+    lda_df = pd.read_csv("data/lda_coherence.csv")
+    output_full = concat_dfs(dfs, 
+                             lda_df, 
+                             path = "automated_coherence_PAPER.csv", 
+                             save = False)
+    output_plot(data = output_full, 
+                y = 'Coherence_CV', 
+                ylab = 'Coherence ($\mathregular{C_{v}}$)', 
+                filename = 'CV_plot.png')
+    output_plot(data = output_full, 
+                y = 'Coherence_NPMI', 
+                ylab = 'Coherence $\mathregular{NPMI}$)', 
+                filename = 'NPMI_plot')
+
+def concat_dfs(dfs, lda_df, path, save = True):
+    '''Load BERT topic models for different topic numbers and coherence types.
+    Parameters
+    ----------
+    t : int
+    model_type : str
+    
+    Returns
+    -------
+    df : pandas.DataFrame
+        Index: RangeIndex
+        Columns:
+            Name: embeddings, dtype: object
+            Name: model, dtype: object
+            Name: components, dtype: object
+            Name: topics, dtype: int64
+            Name: ngrams_per_topic, dtype: int64
+            Name: ct, dtype: object
+            Name: coherence, components, dtype: float64
+            Name: hashtags, dtype: object
+            Name: phrasing, dtype: object
+            Name: max_df, dtype: float64
+            Name: stf, dtype: bool
+            Name: ngrams, components, dtype: int64
+    '''
+    
     output = pd.concat(dfs)
     output['embeddings'] = output['embeddings'].replace(
         {'finetuned_sent_embeddings':'finetuned', 
          'base_sent_embeddings':'base'})
     output = output[output.embeddings == "finetuned"]
-    lda_d = {'Model': ['LDA','BTM','LDA','BTM','LDA','BTM','LDA','BTM'],
-              'topics': [5,5,9,9,10,10,15,15],
-              'Coherence_CV':[0.2224171899548364,0.3757168285376632,0.3067994006844505,0.4794707561935,
-                          0.3378062584495053,0.4515842003382982,0.46649009416555853,0.4382210025794913],
-              'Coherence_NPMI':[-0.08974857376986704,0.10723389644054618,-0.1336361200421473,0.14771913134048534,
-                               -0.14914148796623572,0.11959788877719732,-0.27850208863076364,0.09991915217690188],
-              'Components':['NA']*8}
-
-    lda_df = pd.DataFrame(lda_d, columns = ['Model', 'topics','Coherence_CV',
-                                            'Coherence_NPMI','Components'])
     output = output.replace(
         {'topics_attn':'attn', 
          'topics_tfidf':'tfidf',
@@ -48,22 +70,37 @@ def main():
     output_cv = output[output['ct'].str.contains('c_v')]
     output_npmi = output[output['ct'].str.contains('c_npmi')]
     output_cv = output_cv.rename({'coherence': 'Coherence_CV'}, axis='columns')
-    print(output_npmi['coherence'])
     output_cv['Coherence_NPMI'] = output_npmi['coherence'].tolist()
     output_plot = output_cv
     output_full = output_cv[['Components','Model','topics',
                              'Coherence_CV','Coherence_NPMI']].append(lda_df, ignore_index=True)
     output_full['Coherence_NPMI_abs'] = output_full.Coherence_NPMI.abs()
-    output_full.to_csv("automated_coherence_PAPER.csv", index=False)
+    if save == True:
+        output_full.to_csv(path, index=False)
     output_full['Model, components'] = output_full["Model"] + ", " + output_full["Components"]
     output_full = output_full.replace({'LDA, NA': 'LDA',
                                       'BTM, NA': 'BTM'})
     print(output_full)
-
-    output_plot(data = output_full, y = 'Coherence_CV', ylab = 'Coherence ($\mathregular{C_{v}}$)', filename = 'CV_plot.png')
-    output_plot(data = output_full, y = 'Coherence_NPMI', ylab = 'Coherence $\mathregular{NPMI}$)', filename = 'NPMI_plot')
-
+    return(output_full)
+    
 def output_plot(data, y, ylab, filename):
+    '''Take df about BERT and LDA models as input and output plot comparing them.
+    Parameters
+    ----------
+    data : pandas.DataFrame
+        Index: RangeIndex
+        Columns:
+            Name: Components, dtype: object
+            Name: Model, dtype: object
+            Name: topics, dtype: int64
+            Name: Coherence_CV, dtype: float64
+            Name: Coherence_NPMI, dtype: float64
+            Name: Coherence_NPMI_abs, dtype: float64
+            Name: Model, components, dtype: object
+    y : str
+    ylab : str
+    filename : str
+    '''
     sns.set(style="ticks", font_scale=1.2)
     p = sns.lineplot(data= data, 
                      x='topics', 
@@ -77,36 +114,139 @@ def output_plot(data, y, ylab, filename):
     plt.ylabel(ylab)
     p.set_xticks(range(5,16))
     p.set_xticklabels(range(5,16))
-    p.figure.savefig(f"img/CV_plot.png",dpi=300, bbox_inches="tight")
+    #p.figure.savefig(f"outputs/plots/CV_plot.png",dpi=300, bbox_inches="tight")
     plt.clf()
+
+def get_dfs(models, topics, save = False):
+    '''Load BERT coherence data for each topic number and model type.
+    Parameters
+    ----------
+    c_metrics : list of str
+    topics : list of int
+    save : bool
     
-def load_model(t, model_type = 'c_v'):
-    df = pd.read_csv(f"outputs/coherence/coherence_scores_nlwx_{t}-topics_{model_type}-coherence.csv")
+    Returns
+    -------
+    dfs : list of pandas.DataFrame
+    '''
+    dfs = []
+    for c in c_metrics:
+        for t in topics:
+            df = load_cscores(t = t, c_type = c)
+            max_df = filter_values(df)
+            if save == True:
+                save_model(max_df, c_type = c)
+            dfs.append(max_df)
+    return dfs
+
+def load_cscores(t, c_type = 'c_v'):
+    '''Load coherence score data for BERT topic models for different topic numbers and coherence types.
+    Parameters
+    ----------
+    t : int
+    model_type : str
+    
+    Returns
+    -------
+    df : pandas.DataFrame
+        Index: RangeIndex
+        Columns:
+            Name: embeddings, dtype: object
+            Name: model, dtype: object
+            Name: components, dtype: object
+            Name: topics, dtype: int64
+            Name: ngrams_per_topic, dtype: int64
+            Name: ct, dtype: object
+            Name: coherence, components, dtype: float64
+            Name: hashtags, dtype: object
+            Name: phrasing, dtype: object
+            Name: max_df, dtype: float64
+            Name: stf, dtype: bool
+            Name: ngrams, components, dtype: int64
+    '''
+    df = pd.read_csv(f"outputs/coherence/coherence_scores_nlwx_{t}-topics_{c_type}-coherence.csv")
     return df
     
 def filter_values(df):
+    '''For each topic number and coherence type, get the BERT topic model with the best coherence score.
+    The best coherence score is the highest for u_mass and the lowest for c_uci, c_v and c_npmi.
+    Filters out models with max_df >= 0.5, hashtags and unigrams in keywords.
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Index: RangeIndex
+        Columns:
+            Name: embeddings, dtype: object
+            Name: model, dtype: object
+            Name: components, dtype: object
+            Name: topics, dtype: int64
+            Name: ngrams_per_topic, dtype: int64
+            Name: ct, dtype: object
+            Name: coherence, components, dtype: float64
+            Name: hashtags, dtype: object
+            Name: phrasing, dtype: object
+            Name: max_df, dtype: float64
+            Name: stf, dtype: bool
+            Name: ngrams, components, dtype: int64
+
+    Returns
+    -------
+    max_df : pandas.DataFrame
+        Index: RangeIndex
+        Columns:
+            Name: embeddings, dtype: object
+            Name: model, dtype: object
+            Name: components, dtype: object
+            Name: topics, dtype: int64
+            Name: ngrams_per_topic, dtype: int64
+            Name: ct, dtype: object
+            Name: coherence, components, dtype: float64
+            Name: hashtags, dtype: object
+            Name: phrasing, dtype: object
+            Name: max_df, dtype: float64
+            Name: stf, dtype: bool
+            Name: ngrams, components, dtype: int64
+    
+    '''
     df = df[df['max_df']>0.5]
     df = df[df['ngrams']==1]
     df = df[df['hashtags']=='yes']
     df = df[df['embeddings'].isin(['base_sent_embeddings','finetuned_sent_embeddings'])]
     if df.ct.all() == 'c_v':
         max_df = df.loc[df.groupby(['embeddings','components'])['coherence'].idxmax()]
-        #max_df = df.groupby(['embeddings','components'])['coherence'].transform(max) == df['coherence']
     if df.ct.all() == 'u_mass':
-        #max_df = df.iloc[(df['coherence']).abs().argsort()[:2]]
         max_df = df.loc[df.groupby(['embeddings','components'])['coherence'].idxmin()]
     if df.ct.all() == 'c_npmi' or df.ct.all() == 'c_uci':
         max_df = df.loc[df.groupby(['embeddings','components'])['coherence'].idxmin()]
     return max_df
     
 def save_model(max_df, c_type = 'cv'):
+    '''Save csv. with best performing BERT topic models. By default only saves for topics
+    Parameters
+    ----------
+    max_df : pandas.DataFrame
+        Index: RangeIndex
+        Columns:
+            Name: embeddings, dtype: object
+            Name: model, dtype: object
+            Name: components, dtype: object
+            Name: topics, dtype: int64
+            Name: ngrams_per_topic, dtype: int64
+            Name: ct, dtype: object
+            Name: coherence, components, dtype: float64
+            Name: hashtags, dtype: object
+            Name: phrasing, dtype: object
+            Name: max_df, dtype: float64
+            Name: stf, dtype: bool
+            Name: ngrams, components, dtype: int64
+    c_type : str
+    '''
     outfolder = "best_tm"
     for index, row in max_df.iterrows():
         if row['phrasing'] == 'yes':
             p = 'phrasing'
         else:
             p = 'no_phrasing'
-
         if row['hashtags'] == 'yes':
             h = 'hashtags'
         else:
