@@ -1,5 +1,5 @@
-'''Use coherence scores to select best performing BERT based models.
-Compare BERT models to LDA and BTM models and output plots of comparison. 
+'''Use coherence scores to select best performing BERT based topic models.
+Compare coherence of BERT models to coherence of LDA and BTM models and output plots of comparison. 
 '''
 
 import matplotlib.pyplot as plt
@@ -11,7 +11,7 @@ from matplotlib.colors import ListedColormap
 cmap = ListedColormap(sns.color_palette())
 
 def main():
-    '''Load mo'''
+    '''Load coherence scores for different model iterations and output comparison plots.'''
     c_metrics = ['c_v','c_npmi']
     topics = [5,9,10,15]
     dfs = get_dfs(c_metrics, topics)
@@ -23,38 +23,41 @@ def main():
     output_plot(data = output_full, 
                 y = 'Coherence_CV', 
                 ylab = 'Coherence ($\mathregular{C_{v}}$)', 
-                filename = 'CV_plot.png')
+                filename = 'CV_plot')
     output_plot(data = output_full, 
                 y = 'Coherence_NPMI', 
                 ylab = 'Coherence $\mathregular{NPMI}$)', 
                 filename = 'NPMI_plot')
 
 def concat_dfs(dfs, lda_df, path, save = True):
-    '''Load BERT topic models for different topic numbers and coherence types.
+    '''Concatenate dfs with coherence scores and model parameters.
     Parameters
     ----------
-    t : int
-    model_type : str
+    dfs : list of pandas.DataFrame
+    lda_df : pandas.DataFrame
+        Index: RangeIndex
+        Columns:
+            Name: Model, dtype: object
+            Name: topics, dtype: int64
+            Name: Coherence_CV, dtype: float64
+            Name: Coherence_NPMI, dtype: float64
+            Name: Components, dtype: float64
+    path : str
+    save : bool
     
     Returns
     -------
-    df : pandas.DataFrame
+    output_full : pandas.DataFrame
         Index: RangeIndex
         Columns:
-            Name: embeddings, dtype: object
-            Name: model, dtype: object
-            Name: components, dtype: object
+            Name: Components, dtype: object
+            Name: Model, dtype: object
             Name: topics, dtype: int64
-            Name: ngrams_per_topic, dtype: int64
-            Name: ct, dtype: object
-            Name: coherence, components, dtype: float64
-            Name: hashtags, dtype: object
-            Name: phrasing, dtype: object
-            Name: max_df, dtype: float64
-            Name: stf, dtype: bool
-            Name: ngrams, components, dtype: int64
+            Name: Coherence_CV, dtype: float64
+            Name: Coherence_NPMI, dtype: float64
+            Name: Coherence_NPMI_abs, dtype: float64
+            Name: Model, components, dtype: object
     '''
-    
     output = pd.concat(dfs)
     output['embeddings'] = output['embeddings'].replace(
         {'finetuned_sent_embeddings':'finetuned', 
@@ -80,7 +83,6 @@ def concat_dfs(dfs, lda_df, path, save = True):
     output_full['Model, components'] = output_full["Model"] + ", " + output_full["Components"]
     output_full = output_full.replace({'LDA, NA': 'LDA',
                                       'BTM, NA': 'BTM'})
-    print(output_full)
     return(output_full)
     
 def output_plot(data, y, ylab, filename):
@@ -114,10 +116,10 @@ def output_plot(data, y, ylab, filename):
     plt.ylabel(ylab)
     p.set_xticks(range(5,16))
     p.set_xticklabels(range(5,16))
-    #p.figure.savefig(f"outputs/plots/CV_plot.png",dpi=300, bbox_inches="tight")
+    p.figure.savefig(f"outputs/best_tm/{filename}.png",dpi=300, bbox_inches="tight")
     plt.clf()
 
-def get_dfs(models, topics, save = False):
+def get_dfs(c_metrics, topics, save = False):
     '''Load BERT coherence data for each topic number and model type.
     Parameters
     ----------
