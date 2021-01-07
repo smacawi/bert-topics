@@ -44,5 +44,5 @@ python agreement.py
 
 ### Get best models and output plots
 
-![CV_plot](outputs/best_Tm/CV_plot.png)
+![CV_plot](outputs/best_tm/CV_plot.png)
 
