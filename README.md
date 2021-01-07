@@ -41,3 +41,8 @@ Model agreement measures the extent to which the label outputs of two (unsupervi
 python agreement.py
 
 ```
+
+### Get best models and output plots
+
+![CV_plot](outputs/best_Tm/CV_plot.png)
+
