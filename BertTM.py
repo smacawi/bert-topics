@@ -1,15 +1,18 @@
 from BertForSequenceClassificationOutputPooled import *
+from collections import Counter
+from datetime import datetime
 from gensim.models.phrases import Phrases, Phraser
 from nltk.corpus import stopwords
 from nltk.tokenize import RegexpTokenizer
 from sentence_transformers import SentenceTransformer
 from sentence_transformers import models, losses
 from sklearn.cluster import KMeans
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from textblob import TextBlob, Word
 from transformers import AdamW, BertConfig, BertTokenizer, BertModel, BertPreTrainedModel
 
 import json
+import math
 import numpy as np
 import pandas as pd
 import re
@@ -246,20 +249,46 @@ def filter_data(attentions, stopwords, labels):
     url_re = '(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})'
     print("Filtering attentions.")
     for idx, a in enumerate(attentions):
-        f = [(Word(i[0].lower()).lemmatize(),i[1]) for i in a if i[0].lower() not in stopwords and i[0].lower() not in url_re]
-        f_txt = [re.sub(r"[^a-zA-Z]+", '', w[0]) for w in f]
-        if len(f) > 0:
+        f = [(i[0].lower(), i[1]) for i in a]
+        f = [(Word(i[0]).lemmatize(), i[1]) 
+             for i in f if (i[0] not in stopwords) 
+             and (not re.match(url_re, i[0]))
+             and (i[0].find('snowmageddon2020') == -1)]
+        f_txt = [re.sub('[^a-zA-Z]+', '', w[0]) for w in f]
+        f = [(re.sub('[^a-zA-Z]+', '', w[0]), w[1]) for w in f]
+        if len(f) > 1:
             filtered_a.append(f)
             filtered_t.append(f_txt)
             filtered_l.append(labels[idx])
     return filtered_a, filtered_t, filtered_l
+
+def get_frequent_vocab(corpus, threshold=10):
+    '''
+    Gets words whose frequency exceeds that of the threshold
+    in a given corpus.
+    :param corpus: list of tokenized words
+    :param threshold:
+    :return: list of words with higher frequency than threshold
+    '''
+    freq = Counter(corpus)
+    filtered = [word for word, count in freq.items() if count >= threshold]
+    return filtered
+
+def remove_ifreq_words(features, vocab_threshold = 10):
+    texts = [word for words in features for word in words]
+    vocab = get_frequent_vocab(texts, threshold = vocab_threshold)
+    updated_f = []
+    print(len(vocab))
+    for f in features:
+        updated_f.append([word for word in f if word in vocab and len(word) > 0])
+    return updated_f
 
 # Determine the words and ngrams beloning to each topic cluster.
 # Major modification on code in block 27 of commit 9895ee0  at:
 # https://github.com/huseinzol05/NLP-Models-Tensorflow/blob/master/topic-model/2.bert-topic.ipynb
 def determine_cluster_components(filtered_l, filtered_a, ngram, features):
     print("""
-Determining cluster components. This will take awhile. 
+Determining cluster components. This will take a while. 
 Progress will be printed for every 500th processed property.
     """)
     components = {}
@@ -292,12 +321,14 @@ def dummy_fun(doc):
     return doc
 
 # Create tf-idf weights for topic clusters using Sklearn.
-def tf_icf(words_label, n_topics):
+def tf_icf(words_label, n_topics, max_df = 1.0, stf = False):
     tfidf_vectorizer = TfidfVectorizer(
         analyzer='word',
         tokenizer=dummy_fun,
         preprocessor=dummy_fun,
-        token_pattern=None)
+        token_pattern=None,
+        max_df = max_df,
+        sublinear_tf = stf)
     
     tf_idf_corpus = [[item for item in words_label[key]] for key in range(n_topics)]
     transformed = tfidf_vectorizer.fit_transform(tf_idf_corpus)
@@ -315,13 +346,16 @@ def get_tfidf_components(components, tfidf_indexed):
         components_tfidf_attn[k1] = {}
         components_tfidf[k1] = {}
         for k2 in components[k1]:
-            components_tfidf_attn[k1][k2] = tfidf_indexed[k1][k2] * components[k1][k2]
-            components_tfidf[k1][k2] = tfidf_indexed[k1][k2]
+            try:
+                components_tfidf_attn[k1][k2] = tfidf_indexed[k1][k2] * components[k1][k2]
+                components_tfidf[k1][k2] = tfidf_indexed[k1][k2]
+            except:
+                continue
     return(components_tfidf, components_tfidf_attn)
 
 # Generate phrases for topic cluster components using Gensim Phrases() and Phraser() functions:
 # https://radimrehurek.com/gensim/models/phrases.html
-def get_phrases(filtered_t, min_count=100, threshold=0.5):
+def get_phrases(filtered_t, min_count=5, threshold=100):
     bigram = Phrases(filtered_t, min_count=min_count, threshold = threshold) # higher threshold fewer phrases.
     trigram = Phrases(bigram[filtered_t])  
 
@@ -329,8 +363,9 @@ def get_phrases(filtered_t, min_count=100, threshold=0.5):
     bigram_phraser = Phraser(bigram)
     trigram_phraser = Phraser(trigram)
 
-    phrased = [t for t in trigram[[b for b in bigram[filtered_t]]]]
-    features = [[w.replace('_', ' ') for w in sublist] for sublist in phrased]
+    phrased_bi = [b for b in bigram[filtered_t]]
+    phrased_tri = [t for t in trigram[[b for b in bigram[filtered_t]]]]
+    features = [[w.replace('_', ' ') for w in sublist] for sublist in phrased_bi]
     return(features)
 
 # Import stopwords and hashtags to drop when deternmining topic cluster components.
@@ -339,6 +374,6 @@ def get_stopwords(hashtags = [], filename = 'stopwords-en.json'):
     with open(filename) as fopen:
         stopwords = json.load(fopen)
 
-    stopwords.extend(['#', '@', '…', "'", "’", "[UNK]", "\"", ";", 
+    stopwords.extend(['#', '@', '…', "'", "’", "[unk]", "\"", ";", 
                       "*", "_", "amp", "&", "“", "”"] + hashtags)
     return(stopwords)
