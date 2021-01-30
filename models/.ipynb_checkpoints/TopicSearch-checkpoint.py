@@ -91,5 +91,5 @@ class TopicSearch():
     def _save_topics(self, emb_file, t, components, filename, n_words = 10):
         print(f"Determining topics for kmeans model for {emb_file} with {t} topics.")
         topics = topics_df(topics = t, components = components, n_words = n_words)
-        pickle.dump(topics, open(f'{self.directory}/{t}/{filename}.pkl', "wb"))
-        topics.to_csv(f'{self.directory}/{t}/{filename}.csv', index=False)
+        pickle.dump(topics, open(f'{self.directory}/{t}/topics/{filename}.pkl', "wb"))
+        topics.to_csv(f'{self.directory}/{t}/topics/{filename}.csv', index=False)
