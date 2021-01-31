@@ -3,7 +3,6 @@ import json
 import os
 import pickle
 import sys
-import zipfile
 
 from models.BertTopicModel import BertTopicModel
 from utils import get_stopwords, topics_df
@@ -14,6 +13,7 @@ class TopicSearch():
                  topic_paths = '../data/topicsearch'):
         self.topic_paths=topic_paths
         self.embedding_paths = embedding_paths
+        self.hyperparams = {}
         #self.z = zipfile.ZipFile('data/topicsearch.zip', 'w', zipfile.ZIP_DEFLATED)
 
     def search(self,
@@ -63,7 +63,18 @@ class TopicSearch():
                                         self._save_topics(emb_file, t, components, "topics_attn")
                                         self._save_topics(emb_file, t, components_tfidf, "topics_tfidf")
                                         self._save_topics(emb_file, t, components_tfidf_attn, "topics_tfidf_attn")
+                                        self._save_hyperparams(emb_file,t,h,s,m,p)
 
+    def _save_hyperparams(self,emb_file,t,h,s,m,p):
+        self.hyperparams['emb_file'] = emb_file.split('.')[0]
+        self.hyperparams['topics'] = t
+        self.hyperparams['hashtags'] = h
+        self.hyperparams['stf'] = s
+        self.hyperparams['max_df'] = m
+        self.hyperparams['phrasing'] = p
+        with open(f'{self.directory}/{t}/hyperparams.json', 'w') as f:
+            json.dump(self.hyperparams, f)
+    
     def _init_model(self, emb_file, t):
         # Load embedding and attention data
         all_model_data = pickle.load(open(f'{self.embedding_paths}/{emb_file}', 'rb'))
