@@ -92,7 +92,8 @@ def return_coherence(features, topics, coherence_type):
             coherence = 0
 
     else:
-        print(f"'{coherence_type}' is not a coherence model. Use one of the following arguments: 'u_mass', 'c_v', 'c_uci', 'c_npmi'.")
+        print(f"'{coherence_type}' is not a coherence model." 
+              "Use one of the following arguments:'u_mass', 'c_v', 'c_uci', 'c_npmi'.")
     
     return coherence
 
@@ -137,7 +138,7 @@ def output_coherence(features_path, topics_dir, hp_file, embed_name, coh_type, n
           'ngrams_per_topic':[],'ct': [], 'coherence': [], 'hashtags': [],
           'phrasing':[],'max_df':[],'stf':[],'ngrams':[]}
     ht, p, m, s, n = get_hyperparams(hp_file)
-    
+
     embedding = embed_name.split('_ngram')[0]
     for file in os.listdir(topics_dir):
         if file.endswith(".pkl"):
