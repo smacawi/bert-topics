@@ -212,7 +212,7 @@ def filter_values(df):
     '''
     df = df[df['max_df']>0.5]
     df = df[df['ngrams']==1]
-    df = df[df['hashtags']=='yes']
+    df = df[df['hashtags']==True]
     df = df[df['embeddings'].isin(['base_sent_embeddings','finetuned_sent_embeddings'])]
     if df.ct.all() == 'c_v':
         max_df = df.loc[df.groupby(['embeddings','components'])['coherence'].idxmax()]
@@ -245,11 +245,11 @@ def save_model(max_df, c_type = 'cv'):
     '''
     outfolder = "best_tm"
     for index, row in max_df.iterrows():
-        if row['phrasing'] == 'yes':
+        if row['phrasing']:
             p = 'phrasing'
         else:
             p = 'no_phrasing'
-        if row['hashtags'] == 'yes':
+        if row['hashtags']:
             h = 'hashtags'
         else:
             h = 'no_hashtags'
