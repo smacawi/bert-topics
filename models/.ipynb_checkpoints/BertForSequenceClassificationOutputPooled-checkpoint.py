@@ -6,7 +6,7 @@ from torch.nn import CrossEntropyLoss
 
 """
     Adapted and modified from: 
-    https://huggingface.co/transformers/v2.3.0/_modules/transformers/modeling_bert.html#BertForSequenceClassification
+    https://huggingface.co/transformers/_modules/transformers/modeling_bert.html#BertForSequenceClassification
 """
 
 class BertForSequenceClassificationOutputPooled(BertPreTrainedModel):

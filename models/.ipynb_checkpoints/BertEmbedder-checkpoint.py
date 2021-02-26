@@ -10,7 +10,7 @@ import torch
 import torch.nn as nn
 
 class BertEmbedder():
-    def __init__(self, model_dir, sentence_bert=True):
+    def __init__(self, model_dir, sentence_bert=True,finetuned=True):
         self.sentence_bert = sentence_bert
         self.model_dir = model_dir
         self._load_model()

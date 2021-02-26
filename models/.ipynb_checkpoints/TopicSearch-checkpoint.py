@@ -63,15 +63,16 @@ class TopicSearch():
                                         self._save_topics(emb_file, t, components, "topics_attn")
                                         self._save_topics(emb_file, t, components_tfidf, "topics_tfidf")
                                         self._save_topics(emb_file, t, components_tfidf_attn, "topics_tfidf_attn")
-                                        self._save_hyperparams(emb_file,t,h,s,m,p)
+                                        self._save_hyperparams(emb_file,t,h,s,m,p,ngram)
 
-    def _save_hyperparams(self,emb_file,t,h,s,m,p):
+    def _save_hyperparams(self,emb_file,t,h,s,m,p,ngram):
         self.hyperparams['emb_file'] = emb_file.split('.')[0]
         self.hyperparams['topics'] = t
         self.hyperparams['hashtags'] = h
         self.hyperparams['stf'] = s
         self.hyperparams['max_df'] = m
         self.hyperparams['phrasing'] = p
+        self.hyperparams['ngram'] = ngram
         with open(f'{self.directory}/{t}/hyperparams.json', 'w') as f:
             json.dump(self.hyperparams, f)
     
