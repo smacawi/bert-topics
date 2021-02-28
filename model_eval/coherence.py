@@ -24,10 +24,10 @@ def main():
     topics = [5,9,10,15]
     _, dirs, _ = next(os.walk(base_path))
     dirs = list(d for d in dirs if (not d[0] == '.') and (not d[0].startswith('t')))
-    ct = ['c_v','c_npmi']
+    ct = ['c_v']
+    c_dfs = []
     for t in topics:
         for c in ct:
-            c_dfs = []
             for d in dirs:
                 try:
                     df = output_coherence(f"{base_path}{d}/{t}/features.pkl",
@@ -40,15 +40,14 @@ def main():
                     print(len(c_dfs))
                 except:
                     print(f"Model {d} not found.")
-            try:
-                output = pd.concat(c_dfs).groupby('ct', group_keys = False).apply(
-                pd.DataFrame.sort_values, 'coherence', ascending=False).reset_index(drop = 'True')
-                #output.to_csv(f"outputs/coherence/coherence_scores_nlwx_{t}-topics_{c}-coherence.csv", index=False)
-                output.to_csv("coherence.csv", index=False)
-                print(f"Succesfully saved {t} topics and {c} coherence.")
-            except:
-                print(f"Failed to save {t} topics and {c} coherence.")
-                continue
+    try:
+        output = pd.concat(c_dfs).groupby('ct', group_keys = False).apply(
+            pd.DataFrame.sort_values, 'coherence', ascending=False).reset_index(drop = 'True')
+        #output.to_csv(f"outputs/coherence/coherence_scores_nlwx_{t}-topics_{c}-coherence.csv", index=False)
+        output.to_csv("coherence.csv", index=False)
+        print(f"Succesfully saved {t} topics and {c} coherence.")
+    except:
+        print(f"Failed to save {t} topics and {c} coherence.")
 
 def return_coherence(features, topics, coherence_type):
     '''Returns coherence score for topics using the Gensim module CoherenceModel().
