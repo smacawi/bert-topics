@@ -45,7 +45,7 @@ class BertEmbedder():
             if self.sentence_bert:
                 self.embeddings.extend(self.stmodel.encode([data[i]]))
             else:
-                self.embeddings.extend(vectorize([data[i]], self.model, self.tokenizer))
+                self.embeddings.extend(self._vectorize([data[i]]))
             self.attentions.extend(self._get_attention([data[i]]))
             if i % 50 == 0:
                 print(f'Processed {(i)} rows in {round(time.time() - start_time, 2)} seconds.')
@@ -148,11 +148,11 @@ class BertEmbedder():
     # Vectorize input documents using pooling_input similar to "pooler_output" in:
     # https://huggingface.co/transformers/model_doc/bert.html
     # CURRENTLY NOT WORKING!!!
-    def _vectorize(texts, model, tokenizer):
-        input_list, _ = tokenize_for_tm(texts, tokenizer)
+    def _vectorize(self, texts):
+        input_list, _ = self._tokenize_for_tm(texts)
         vectorized_sentences = []
         for idx, input_ids in enumerate(input_list):
-            outputs = model(input_ids)
+            outputs = self.model(input_ids)
             # No labels given, so loss not in output and index is 3. 
             # With labels given, index is 4.
             vectorized_sentences.append(outputs[3][0].detach().numpy())
