@@ -1,0 +1,146 @@
+{
+    "topic_0": {
+        "keywords": [
+            "snow",
+            "storm",
+            "emergency",
+            "blizzard",
+            "wind",
+            "weather",
+            "snowfall",
+            "john",
+            "closed",
+            "day"
+        ],
+        "interpretability": "3",
+        "usefulness": "2"
+    },
+    "topic_1": {
+        "keywords": [
+            "nlstorm",
+            "snow",
+            "nltraffic",
+            "snowstorm",
+            "day",
+            "blizzard",
+            "view",
+            "love",
+            "storm",
+            "canada"
+        ],
+        "interpretability": "3",
+        "usefulness": "3"
+    },
+    "topic_2": {
+        "keywords": [
+            "closed",
+            "power",
+            "outage",
+            "snow",
+            "emergency",
+            "road",
+            "buried",
+            "storm",
+            "lost",
+            "school"
+        ],
+        "interpretability": "1",
+        "usefulness": "1"
+    },
+    "topic_3": {
+        "keywords": [
+            "assistance",
+            "support",
+            "helping",
+            "people",
+            "emergency",
+            "food",
+            "snow",
+            "military",
+            "supply",
+            "community"
+        ],
+        "interpretability": "1",
+        "usefulness": "1"
+    },
+    "topic_4": {
+        "keywords": [
+            "hope",
+            "stay",
+            "safe",
+            "thinking",
+            "hoping",
+            "friend",
+            "god",
+            "prayer",
+            "storm",
+            "warm"
+        ],
+        "interpretability": "1",
+        "usefulness": "2"
+    },
+    "topic_5": {
+        "keywords": [
+            "stay",
+            "safe",
+            "warning",
+            "advisory",
+            "emergency",
+            "storm",
+            "snow",
+            "envcanada",
+            "blizzard",
+            "warm"
+        ],
+        "interpretability": "2",
+        "usefulness": "3"
+    },
+    "topic_6": {
+        "keywords": [
+            "snow",
+            "buried",
+            "storm",
+            "power",
+            "people",
+            "car",
+            "digging",
+            "emergency",
+            "stuck",
+            "missing"
+        ],
+        "interpretability": "2",
+        "usefulness": "1"
+    },
+    "topic_7": {
+        "keywords": [
+            "snow",
+            "storm",
+            "blizzard",
+            "snowstorm",
+            "nlstorm",
+            "weather",
+            "winter",
+            "day",
+            "newfoundlandstorm",
+            "wind"
+        ],
+        "interpretability": "3",
+        "usefulness": "3"
+    },
+    "topic_8": {
+        "keywords": [
+            "snow",
+            "storm",
+            "love",
+            "day",
+            "shovel",
+            "people",
+            "hope",
+            "dog",
+            "eminem",
+            "neighbour"
+        ],
+        "interpretability": "3",
+        "usefulness": "3"
+    }
+}

@@ -1,0 +1,146 @@
+{
+    "topic_0": {
+        "keywords": [
+            "gust",
+            "airport",
+            "forecast",
+            "total",
+            "reporting",
+            "monster",
+            "snowiest",
+            "visibility",
+            "recorded",
+            "peak"
+        ],
+        "interpretability": "1",
+        "usefulness": "1"
+    },
+    "topic_1": {
+        "keywords": [
+            "snowday",
+            "ivyparkxadidas",
+            "mood",
+            "song",
+            "blackswan",
+            "le",
+            "snowdoor",
+            "nlpoli",
+            "lovely",
+            "perspective"
+        ],
+        "interpretability": "3",
+        "usefulness": "3"
+    },
+    "topic_2": {
+        "keywords": [
+            "outage",
+            "damage",
+            "closure",
+            "blocked",
+            "campus",
+            "widening",
+            "remain",
+            "advisory",
+            "reported",
+            "shut"
+        ],
+        "interpretability": "1",
+        "usefulness": "1"
+    },
+    "topic_3": {
+        "keywords": [
+            "assistance",
+            "assist",
+            "troop",
+            "volunteer",
+            "providing",
+            "relief",
+            "aid",
+            "grateful",
+            "request",
+            "offering"
+        ],
+        "interpretability": "1",
+        "usefulness": "1"
+    },
+    "topic_4": {
+        "keywords": [
+            "prayer",
+            "praying",
+            "pray",
+            "wish",
+            "wishing",
+            "humanity",
+            "lord",
+            "goodness",
+            "brave",
+            "surviving"
+        ],
+        "interpretability": "1",
+        "usefulness": "1"
+    },
+    "topic_5": {
+        "keywords": [
+            "warning",
+            "blowingsnow",
+            "alert",
+            "advisory",
+            "caution",
+            "advised",
+            "forecast",
+            "stormsurge",
+            "remain",
+            "wreckhouse"
+        ],
+        "interpretability": "1",
+        "usefulness": "1"
+    },
+    "topic_6": {
+        "keywords": [
+            "trapped",
+            "stranded",
+            "hydrant",
+            "airport",
+            "ambulance",
+            "dead",
+            "garbage",
+            "rescue",
+            "taxi",
+            "permitted"
+        ],
+        "interpretability": "2",
+        "usefulness": "1"
+    },
+    "topic_7": {
+        "keywords": [
+            "snowday",
+            "monster",
+            "holy",
+            "meteorologist",
+            "stormageddon",
+            "bcstorm",
+            "drifting",
+            "perspective",
+            "stormofthecentury",
+            "forecast"
+        ],
+        "interpretability": "1",
+        "usefulness": "1"
+    },
+    "topic_8": {
+        "keywords": [
+            "bread",
+            "song",
+            "coffee",
+            "milk",
+            "baby",
+            "feelin",
+            "pin",
+            "enjoying",
+            "woman",
+            "wife"
+        ],
+        "interpretability": "1",
+        "usefulness": "1"
+    }
+}

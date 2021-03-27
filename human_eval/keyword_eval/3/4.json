@@ -1,0 +1,146 @@
+{
+    "topic_0": {
+        "keywords": [
+            "reporting",
+            "snowiest",
+            "peak",
+            "recorded",
+            "equivalent",
+            "gusting",
+            "monster",
+            "sustained",
+            "ramping",
+            "flurry"
+        ],
+        "interpretability": "1",
+        "usefulness": "1"
+    },
+    "topic_1": {
+        "keywords": [
+            "ivyparkxadidas",
+            "le",
+            "blackswan",
+            "saturdayvibes",
+            "saturdaythoughts",
+            "shareyourweather",
+            "afallfromgrace",
+            "adidasxivypark",
+            "exolstandwith",
+            "icitnl"
+        ],
+        "interpretability": "3",
+        "usefulness": "3"
+    },
+    "topic_2": {
+        "keywords": [
+            "outage",
+            "campus",
+            "reported",
+            "reporting",
+            "impassable",
+            "advisory",
+            "district",
+            "cna",
+            "ramp",
+            "section"
+        ],
+        "interpretability": "2",
+        "usefulness": "2"
+    },
+    "topic_3": {
+        "keywords": [
+            "assistance",
+            "assist",
+            "troop",
+            "providing",
+            "volunteer",
+            "health",
+            "personnel",
+            "offering",
+            "aid",
+            "relief"
+        ],
+        "interpretability": "1",
+        "usefulness": "1"
+    },
+    "topic_4": {
+        "keywords": [
+            "prayer",
+            "praying",
+            "pray",
+            "wish",
+            "wishing",
+            "stocked",
+            "surviving",
+            "brave",
+            "loved",
+            "humanity"
+        ],
+        "interpretability": "1",
+        "usefulness": "1"
+    },
+    "topic_5": {
+        "keywords": [
+            "blowingsnow",
+            "stormsurge",
+            "advisory",
+            "alert",
+            "wreckhouse",
+            "caution",
+            "advised",
+            "surge",
+            "gusting",
+            "terranova"
+        ],
+        "interpretability": "2",
+        "usefulness": "2"
+    },
+    "topic_6": {
+        "keywords": [
+            "hydrant",
+            "trapped",
+            "stranded",
+            "permitted",
+            "shovelled",
+            "snowmobile",
+            "barely",
+            "spent",
+            "garbage",
+            "parking"
+        ],
+        "interpretability": "2",
+        "usefulness": "3"
+    },
+    "topic_7": {
+        "keywords": [
+            "shareyourweather",
+            "saturdaythoughts",
+            "stormofthecentury",
+            "saturdayvibes",
+            "meteorologist",
+            "perspective",
+            "monster",
+            "snowdrift",
+            "windy",
+            "bettywhiteout"
+        ],
+        "interpretability": "3",
+        "usefulness": "3"
+    },
+    "topic_8": {
+        "keywords": [
+            "pin",
+            "bread",
+            "coffee",
+            "feelin",
+            "milk",
+            "song",
+            "enjoying",
+            "laugh",
+            "favorite",
+            "le"
+        ],
+        "interpretability": "2",
+        "usefulness": "2"
+    }
+}

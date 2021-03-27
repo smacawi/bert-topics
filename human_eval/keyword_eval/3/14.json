@@ -1,0 +1,146 @@
+{
+    "topic_0": {
+        "keywords": [
+            "shareyourweather",
+            "ivyparkxadidas",
+            "saturdaythoughts",
+            "saturdaymotivation",
+            "snowdoor",
+            "bcstorm",
+            "titanscollections",
+            "badboysforlife",
+            "bingo",
+            "blackswan"
+        ],
+        "interpretability": "3",
+        "usefulness": "3"
+    },
+    "topic_1": {
+        "keywords": [
+            "pin",
+            "feelin",
+            "taxi",
+            "mayor",
+            "metro",
+            "en",
+            "blowingsnow",
+            "ivyparkxadidas",
+            "bus",
+            "dannybreennl"
+        ],
+        "interpretability": "3",
+        "usefulness": "3"
+    },
+    "topic_2": {
+        "keywords": [
+            "thankful",
+            "bank",
+            "yo",
+            "mayor",
+            "neighbor",
+            "walked",
+            "wa",
+            "bus",
+            "glad",
+            "pharmacy"
+        ],
+        "interpretability": "2",
+        "usefulness": "3"
+    },
+    "topic_3": {
+        "keywords": [
+            "lay",
+            "justintrudeau",
+            "save",
+            "suck",
+            "radiogregsmith",
+            "kettle",
+            "anthonygermain",
+            "kilbride",
+            "kaylahounsell",
+            "campus"
+        ],
+        "interpretability": "3",
+        "usefulness": "3"
+    },
+    "topic_4": {
+        "keywords": [
+            "metro",
+            "campus",
+            "provincial",
+            "mayor",
+            "remain",
+            "operation",
+            "pharmacy",
+            "region",
+            "taxi",
+            "advisory"
+        ],
+        "interpretability": "2",
+        "usefulness": "3"
+    },
+    "topic_5": {
+        "keywords": [
+            "mood",
+            "hutton",
+            "cute",
+            "compound",
+            "lovely",
+            "spread",
+            "stream",
+            "design",
+            "ivyparkxadidas",
+            "crisis"
+        ],
+        "interpretability": "2",
+        "usefulness": "3"
+    },
+    "topic_6": {
+        "keywords": [
+            "glad",
+            "looked",
+            "apartment",
+            "cloudy",
+            "law",
+            "snowblowing",
+            "honestly",
+            "as",
+            "eat",
+            "weird"
+        ],
+        "interpretability": "3",
+        "usefulness": "3"
+    },
+    "topic_7": {
+        "keywords": [
+            "thankful",
+            "glad",
+            "sharing",
+            "favourite",
+            "shareyourweather",
+            "grateful",
+            "monster",
+            "feelin",
+            "neighbor",
+            "mom"
+        ],
+        "interpretability": "2",
+        "usefulness": "2"
+    },
+    "topic_8": {
+        "keywords": [
+            "monster",
+            "stormsurge",
+            "le",
+            "wreckhouse",
+            "newfoundlandlabrador",
+            "ode",
+            "snowiest",
+            "ottawa",
+            "historic",
+            "explorenl"
+        ],
+        "interpretability": "3",
+        "usefulness": "3"
+    }
+}

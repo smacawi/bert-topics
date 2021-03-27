@@ -1,0 +1,146 @@
+{
+    "topic_0": {
+        "keywords": [
+            "snowiest",
+            "gusting",
+            "recorded",
+            "cloudy",
+            "peak",
+            "reporting",
+            "sustained",
+            "satellite",
+            "slam",
+            "equivalent"
+        ],
+        "interpretability": "2",
+        "usefulness": "2"
+    },
+    "topic_1": {
+        "keywords": [
+            "ivyparkxadidas",
+            "afallfromgrace",
+            "blackswan",
+            "adidasxivypark",
+            "exolstandwith",
+            "saturdayvibes",
+            "erronoenem",
+            "saturdaythoughts",
+            "terre",
+            "iciacadie"
+        ],
+        "interpretability": "3",
+        "usefulness": "3"
+    },
+    "topic_2": {
+        "keywords": [
+            "outage",
+            "campus",
+            "impassable",
+            "district",
+            "deteriorating",
+            "remaining",
+            "outer",
+            "reported",
+            "reporting",
+            "club"
+        ],
+        "interpretability": "2",
+        "usefulness": "3"
+    },
+    "topic_3": {
+        "keywords": [
+            "assistance",
+            "assist",
+            "personnel",
+            "providing",
+            "troop",
+            "relief",
+            "volunteer",
+            "offering",
+            "domino",
+            "aid"
+        ],
+        "interpretability": "1",
+        "usefulness": "1"
+    },
+    "topic_4": {
+        "keywords": [
+            "prayer",
+            "praying",
+            "pray",
+            "wish",
+            "wishing",
+            "surviving",
+            "brave",
+            "stocked",
+            "loved",
+            "humanity"
+        ],
+        "interpretability": "1",
+        "usefulness": "1"
+    },
+    "topic_5": {
+        "keywords": [
+            "blowingsnow",
+            "stormsurge",
+            "wreckhouse",
+            "alert",
+            "advisory",
+            "caution",
+            "gusting",
+            "advised",
+            "surge",
+            "terranova"
+        ],
+        "interpretability": "2",
+        "usefulness": "3"
+    },
+    "topic_6": {
+        "keywords": [
+            "hydrant",
+            "stranded",
+            "trapped",
+            "roach",
+            "stove",
+            "permitted",
+            "garbage",
+            "searching",
+            "shopper",
+            "shovelled"
+        ],
+        "interpretability": "2",
+        "usefulness": "3"
+    },
+    "topic_7": {
+        "keywords": [
+            "stormofthecentury",
+            "saturdaythoughts",
+            "saturdayvibes",
+            "shareyourweather",
+            "downtownstjohns",
+            "snowdrift",
+            "bettywhiteout",
+            "meanwhileincanada",
+            "meteorologist",
+            "eating"
+        ],
+        "interpretability": "3",
+        "usefulness": "3"
+    },
+    "topic_8": {
+        "keywords": [
+            "pin",
+            "therealbigthump",
+            "tartan",
+            "stew",
+            "sell",
+            "pour",
+            "drunk",
+            "dinner",
+            "selling",
+            "feelin"
+        ],
+        "interpretability": "2",
+        "usefulness": "3"
+    }
+}

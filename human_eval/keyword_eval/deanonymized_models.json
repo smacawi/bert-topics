@@ -1,0 +1,19 @@
+{
+    "BTM": 3,
+    "cv_finetuned_sent_embeddings_ngram1_phrasing_stf-False_mdf-0.6_hashtags_topics_tfidf": 4,
+    "cv_finetuned_sent_embeddings_ngram1_phrasing_stf-False_mdf-0.8_hashtags_topics_attn": 8,
+    "cv_finetuned_sent_embeddings_ngram1_phrasing_stf-True_mdf-0.6_hashtags_topics_tfidf_attn": 6,
+    "LDA": 9,
+    "cv_finetuned_sent_embeddings_ngram1_no_phrasing_stf-False_mdf-0.8_hashtags_topics_attn": 7,
+    "npmi_finetuned_sent_embeddings_ngram1_no_phrasing_stf-False_mdf-0.6_hashtags_topics_attn": 11,
+    "cv_finetuned_sent_embeddings_ngram1_phrasing_stf-True_mdf-0.7_hashtags_topics_tfidf_attn": 5,
+    "npmi_finetuned_sent_embeddings_ngram1_phrasing_stf-True_mdf-0.6_hashtags_topics_tfidf": 10,
+    "cv_finetuned_sent_embeddings_ngram1_phrasing_stf-True_mdf-0.6_hashtags_topics_tfidf": 0,
+    "npmi_finetuned_sent_embeddings_ngram1_phrasing_stf-True_mdf-0.6_hashtags_topics_tfidf_attn": 2,
+    "npmi_finetuned_sent_embeddings_ngram1_phrasing_stf-False_mdf-0.6_hashtags_topics_tfidf": 1,
+    "btm": 15,
+    "lda": 12,
+    "pretrained_mean_pooled_ngram1_phrasing-True_stf-True_mdf-0.6_hashtags-True_topics_tfidf_attn": 16,
+    "finetuned_mean_pooled_ngram1_phrasing-True_stf-True_mdf-0.6_hashtags-True_topics_tfidf_attn": 13,
+    "pretrained_sent_embeddings_ngram1_phrasing-True_stf-True_mdf-0.7_hashtags-True_topics_tfidf_attn": 14
+}

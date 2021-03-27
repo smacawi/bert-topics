@@ -1,0 +1,146 @@
+{
+    "topic_0": {
+        "keywords": [
+            "reporting",
+            "monster",
+            "snowiest",
+            "recorded",
+            "peak",
+            "temperature",
+            "cloudy",
+            "reported",
+            "equivalent",
+            "meteorologist"
+        ],
+        "interpretability": "2",
+        "usefulness": "2"
+    },
+    "topic_1": {
+        "keywords": [
+            "ivyparkxadidas",
+            "mood",
+            "song",
+            "blackswan",
+            "le",
+            "snowdoor",
+            "perspective",
+            "ode",
+            "music",
+            "adidasxivypark"
+        ],
+        "interpretability": "3",
+        "usefulness": "3"
+    },
+    "topic_2": {
+        "keywords": [
+            "outage",
+            "campus",
+            "widening",
+            "advisory",
+            "reported",
+            "impassable",
+            "remaining",
+            "thousand",
+            "reporting",
+            "suspended"
+        ],
+        "interpretability": "2",
+        "usefulness": "2"
+    },
+    "topic_3": {
+        "keywords": [
+            "assistance",
+            "assist",
+            "troop",
+            "volunteer",
+            "providing",
+            "relief",
+            "aid",
+            "request",
+            "offering",
+            "rescue"
+        ],
+        "interpretability": "1",
+        "usefulness": "1"
+    },
+    "topic_4": {
+        "keywords": [
+            "prayer",
+            "praying",
+            "pray",
+            "wish",
+            "wishing",
+            "humanity",
+            "brave",
+            "surviving",
+            "loved",
+            "kindness"
+        ],
+        "interpretability": "1",
+        "usefulness": "1"
+    },
+    "topic_5": {
+        "keywords": [
+            "blowingsnow",
+            "alert",
+            "advisory",
+            "caution",
+            "advised",
+            "stormsurge",
+            "wreckhouse",
+            "surge",
+            "drifting",
+            "avoid"
+        ],
+        "interpretability": "2",
+        "usefulness": "2"
+    },
+    "topic_6": {
+        "keywords": [
+            "trapped",
+            "stranded",
+            "hydrant",
+            "ambulance",
+            "dead",
+            "garbage",
+            "rescue",
+            "permitted",
+            "body",
+            "helped"
+        ],
+        "interpretability": "2",
+        "usefulness": "2"
+    },
+    "topic_7": {
+        "keywords": [
+            "monster",
+            "meteorologist",
+            "drifting",
+            "perspective",
+            "stormofthecentury",
+            "mood",
+            "snowdrift",
+            "climate",
+            "windy",
+            "snowdoor"
+        ],
+        "interpretability": "3",
+        "usefulness": "3"
+    },
+    "topic_8": {
+        "keywords": [
+            "bread",
+            "song",
+            "coffee",
+            "milk",
+            "feelin",
+            "pin",
+            "enjoying",
+            "laugh",
+            "favorite",
+            "girl"
+        ],
+        "interpretability": "3",
+        "usefulness": "3"
+    }
+}
