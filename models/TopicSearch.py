@@ -9,8 +9,8 @@ from utils import get_stopwords, topics_df
 
 class TopicSearch():
     def __init__(self,
-                 embedding_paths = '../data/embeddings/',
-                 topic_paths = '../data/topicsearch'):
+                 embedding_paths = 'data/embeddings/',
+                 topic_paths = 'data/topicsearch'):
         self.topic_paths=topic_paths
         self.embedding_paths = embedding_paths
         self.hyperparams = {}
@@ -20,10 +20,10 @@ class TopicSearch():
                ngrams=[1,2], 
                max_df=[0.6, 0.7, 0.8, 0.85, 0.9, 1.0],
                stf=[True, False],
-               n_topics = [5,10,15],
-               hashtags = [],
-               hashtag_opts = [True, False],
-               phrasing = [True, False],
+               n_topics=[5,10,15],
+               hashtags=[],
+               hashtag_opts=[True, False],
+               phrasing=[True, False],
                p_min_count=5,
                p_threshold=100):
 
@@ -32,7 +32,7 @@ class TopicSearch():
                 for t in n_topics:
                     self._init_model(emb_file, t)
                     for h in hashtag_opts:
-                        stopwords = get_stopwords(hashtags = hashtags,filename = '../data/stopwords-en.json')
+                        stopwords = get_stopwords(hashtags = hashtags,filename = 'data/stopwords-en.json')
                         for n in ngrams:
                             ngram = (1, n)
                             for s in stf:
@@ -64,6 +64,7 @@ class TopicSearch():
                                         self._save_topics(emb_file, t, components_tfidf, "topics_tfidf")
                                         self._save_topics(emb_file, t, components_tfidf_attn, "topics_tfidf_attn")
                                         self._save_hyperparams(emb_file,t,h,s,m,p,ngram)
+                                        self.bertTM.reset_model()
 
     def _save_hyperparams(self,emb_file,t,h,s,m,p,ngram):
         self.hyperparams['emb_file'] = emb_file.split('.')[0]

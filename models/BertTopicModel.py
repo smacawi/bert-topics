@@ -33,7 +33,9 @@ class BertTopicModel():
             self._get_phrases(min_count=min_count, threshold=threshold)
         else:
             self.features = self.filtered_t
+        print(len(self.features))
         self._remove_ifreq_words()
+        print(len(self.features))
         return self.features
         
     def filter_data(self, stopwords):
@@ -41,12 +43,17 @@ class BertTopicModel():
         print("Filtering attentions.")
         for idx, a in enumerate(self.attentions):
             f = [(i[0].lower(), i[1]) for i in a]
+            #print(f)
             f = [(Word(i[0]).lemmatize(), i[1]) 
                  for i in f if (i[0] not in stopwords) 
                  and (not re.match(url_re, i[0]))
                  and (i[0].find('snowmageddon2020') == -1)]
+            #print(f)
             f_txt = [re.sub('[^a-zA-Z]+', '', w[0]) for w in f]
+            #print(f_txt)
             f = [(re.sub('[^a-zA-Z]+', '', w[0]), w[1]) for w in f]
+            #print(f)
+            #print("\n")
             if len(f) > 1:
                 self.filtered_a.append(f)
                 self.filtered_t.append(f_txt)
@@ -101,6 +108,17 @@ class BertTopicModel():
         self.components_tfidf_attn = components_tfidf_attn
         return self.components_tfidf,self.components_tfidf_attn
     
+    def reset_model(self):
+        self.filtered_a = []
+        self.filtered_t = [] 
+        self.filtered_l = []
+        self.components = [] 
+        self.words_label = []
+        self.features = []
+        self.words_label = []
+        self.components_tfidf = []
+        self.components_tfidf_attn = []
+    
     def _get_label_counts(self):
         unique, counts = np.unique(self.labels, return_counts=True)
         print("The number of texts per label are:")
@@ -124,7 +142,6 @@ class BertTopicModel():
         texts = [word for words in self.features for word in words]
         vocab = self._get_frequent_vocab(texts, threshold = vocab_threshold)
         updated_f = []
-        print(len(vocab))
         for f in self.features:
             updated_f.append([word for word in f if word in vocab and len(word) > 0])
         self.features = updated_f
