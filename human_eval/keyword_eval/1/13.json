@@ -1,0 +1,146 @@
+{
+    "topic_0": {
+        "keywords": [
+            "total",
+            "recovery",
+            "campus",
+            "advisory",
+            "snowiest",
+            "declares",
+            "recorded",
+            "sunrise",
+            "climate",
+            "suspended"
+        ],
+        "interpretability": "3",
+        "usefulness": "3"
+    },
+    "topic_1": {
+        "keywords": [
+            "ode",
+            "song",
+            "memory",
+            "snowman",
+            "anxiety",
+            "cry",
+            "snowdoor",
+            "suck",
+            "beauty",
+            "walkway"
+        ],
+        "interpretability": "3",
+        "usefulness": "3"
+    },
+    "topic_2": {
+        "keywords": [
+            "track",
+            "sick",
+            "total",
+            "galway",
+            "memorial",
+            "history",
+            "climate",
+            "central",
+            "walmart",
+            "widening"
+        ],
+        "interpretability": "3",
+        "usefulness": "3"
+    },
+    "topic_3": {
+        "keywords": [
+            "warning",
+            "blowingsnow",
+            "alert",
+            "advisory",
+            "advised",
+            "caution",
+            "stormsurge",
+            "prepare",
+            "wreckhouse",
+            "insurance"
+        ],
+        "interpretability": "1",
+        "usefulness": "2"
+    },
+    "topic_4": {
+        "keywords": [
+            "outage",
+            "widening",
+            "damage",
+            "buries",
+            "impassable",
+            "blew",
+            "barely",
+            "broken",
+            "hurt",
+            "causing"
+        ],
+        "interpretability": "1",
+        "usefulness": "2"
+    },
+    "topic_5": {
+        "keywords": [
+            "song",
+            "ivyparkxadidas",
+            "le",
+            "feelin",
+            "cute",
+            "kindness",
+            "blackswan",
+            "music",
+            "pin",
+            "laugh"
+        ],
+        "interpretability": "3",
+        "usefulness": "3"
+    },
+    "topic_6": {
+        "keywords": [
+            "prayer",
+            "trapped",
+            "praying",
+            "stranded",
+            "hang",
+            "pray",
+            "wish",
+            "lord",
+            "wishing",
+            "brave"
+        ],
+        "interpretability": "1",
+        "usefulness": "1"
+    },
+    "topic_7": {
+        "keywords": [
+            "saturdaythoughts",
+            "insurance",
+            "michigan",
+            "mood",
+            "snowman",
+            "hang",
+            "bombogenesis",
+            "terrifying",
+            "gathering",
+            "mark"
+        ],
+        "interpretability": "3",
+        "usefulness": "3"
+    },
+    "topic_8": {
+        "keywords": [
+            "assistance",
+            "assist",
+            "troop",
+            "shelter",
+            "rescue",
+            "volunteer",
+            "aid",
+            "relief",
+            "providing",
+            "request"
+        ],
+        "interpretability": "1",
+        "usefulness": "1"
+    }
+}

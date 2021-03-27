@@ -1,0 +1,7 @@
+{
+    "btm": 15,
+    "lda": 12,
+    "pretrained_mean_pooled_ngram1_phrasing-True_stf-True_mdf-0.6_hashtags-True_topics_tfidf_attn": 16,
+    "finetuned_mean_pooled_ngram1_phrasing-True_stf-True_mdf-0.6_hashtags-True_topics_tfidf_attn": 13,
+    "pretrained_sent_embeddings_ngram1_phrasing-True_stf-True_mdf-0.7_hashtags-True_topics_tfidf_attn": 14
+}

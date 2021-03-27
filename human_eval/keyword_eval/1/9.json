@@ -1,0 +1,146 @@
+{
+    "topic_0": {
+        "keywords": [
+            "blizzard",
+            "help",
+            "nlstorm",
+            "this",
+            "weather",
+            "getting",
+            "making",
+            "downtown",
+            "stjohnsnl",
+            "update"
+        ],
+        "interpretability": "3",
+        "usefulness": "3"
+    },
+    "topic_1": {
+        "keywords": [
+            "st",
+            "john",
+            "winter",
+            "nl",
+            "neighbours",
+            "thank",
+            "many",
+            "out",
+            "tonight",
+            "ve"
+        ],
+        "interpretability": "3",
+        "usefulness": "3"
+    },
+    "topic_2": {
+        "keywords": [
+            "emergency",
+            "nltraffic",
+            "state",
+            "people",
+            "newfoundland",
+            "street",
+            "go",
+            "photos",
+            "everyone",
+            "you"
+        ],
+        "interpretability": "3",
+        "usefulness": "3"
+    },
+    "topic_3": {
+        "keywords": [
+            "like",
+            "one",
+            "today",
+            "time",
+            "newfoundlandstorm",
+            "love",
+            "work",
+            "that",
+            "much",
+            "would"
+        ],
+        "interpretability": "3",
+        "usefulness": "3"
+    },
+    "topic_4": {
+        "keywords": [
+            "canada",
+            "tomorrow",
+            "road",
+            "nlwx",
+            "could",
+            "cbcnl",
+            "two",
+            "mount",
+            "never",
+            "seen"
+        ],
+        "interpretability": "3",
+        "usefulness": "3"
+    },
+    "topic_5": {
+        "keywords": [
+            "it",
+            "good",
+            "still",
+            "home",
+            "see",
+            "nlsnowstorm2020",
+            "thanks",
+            "cityofstjohns",
+            "again",
+            "walk"
+        ],
+        "interpretability": "3",
+        "usefulness": "3"
+    },
+    "topic_6": {
+        "keywords": [
+            "day",
+            "open",
+            "cm",
+            "need",
+            "january",
+            "snowfall",
+            "power",
+            "monday",
+            "first",
+            "last"
+        ],
+        "interpretability": "3",
+        "usefulness": "3"
+    },
+    "topic_7": {
+        "keywords": [
+            "got",
+            "days",
+            "house",
+            "way",
+            "re",
+            "soe",
+            "little",
+            "now",
+            "us",
+            "ok"
+        ],
+        "interpretability": "3",
+        "usefulness": "3"
+    },
+    "topic_8": {
+        "keywords": [
+            "storm",
+            "snow",
+            "get",
+            "great",
+            "know",
+            "anyone",
+            "yyt",
+            "lol",
+            "new",
+            "car"
+        ],
+        "interpretability": "3",
+        "usefulness": "3"
+    }
+}
